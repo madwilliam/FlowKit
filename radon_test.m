@@ -4,7 +4,14 @@ files = dir([path '*.tif']);
 filei = [path,files(1).name];
 t = Tiff(filei,'r');
 all_data = read(t);
-imageData = all_data(150:end,218000:end);
+imageData = all_data(150:end,:);
+[slopes,time]=get_slope_from_line_scan(imcomplement(imageData),120);
+figure
+ax1 = subplot(2,1,1);
+imagesc(ax1,imageData)
+ax2 = subplot(2,1,2);
+plot(ax2,time,slopes)
+%%
 [nline,nframes] = size(imageData);
 start = 1;
 data_chunk = all_data(150:end,100:200);
@@ -20,15 +27,13 @@ data_chunk = data_chunk-mean_data;
 %%
 figure 
 imagesc(data_chunk)
-theta = RadonTools.two_lev
-el_radon(data_chunk,@RadonTools.get_max_variance_angle);
-theta = RadonTools.two_level_radon(data_chunk,@RadonTools.get_max_value_angle);
+theta = RadonTools.two_level_radon(data_chunk,@RadonTools.get_max_variance_angle);
+% theta = RadonTools.two_level_radon(data_chunk,@RadonTools.get_max_value_angle);
 
 angles = 1:179;
 [R,radius]=radon(data_chunk,angles);
-[max_val_per_angle,max_id_per_angle] = max(R);
-[max_R,max_angle_id] = max(max_val_per_angle);
-max_radius_id = max_id_per_angle(max_angle_id);
+[max_variance_angle,max_angle_id] = max(var(R));
+[max_radius,max_radius_id] = max(R(:,max_angle_id));
 max_R_id = [max_radius_id,max_angle_id];
 [slope,intercept] = RadonTools.get_slope_and_intercept(radius(max_radius_id),angles(max_angle_id),size(data_chunk));
 

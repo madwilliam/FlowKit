@@ -17,10 +17,9 @@ end
 function theta_fine = two_step_radon(data_chunk,angles_to_detect)
     angles_fine=-2:.25:2;
     [R,~]=radon(data_chunk,angles_to_detect);
-    theta= get_max_value_angle(R,angles_to_detect);
+    theta= get_max_variance_angle(R,angles_to_detect);
     [R_fine,~]=radon(data_chunk,theta+angles_fine);
-    theta_fine= get_max_value_angle(R_fine,theta+angles_fine);
-    disp(theta_fine)
+    theta_fine= get_max_variance_angle(R_fine,theta+angles_fine);
 end
 
 function data = preprocess_data(data)
