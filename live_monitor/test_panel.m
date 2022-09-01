@@ -9,7 +9,3 @@ hSI.hDisplay.stripeDataBufferPointer = 1;
 lastStripe.rawData = DataSimulator.get_one_radon_test();
 hSI.hDisplay.stripeDataBuffer = {lastStripe};
 panel =  LineScanPanel(@get_live_data_feed);
-
-
-lastStripe=hSI.hDisplay.stripeDataBuffer{hSI.hDisplay.stripeDataBufferPointer};
-data_chunk = reshape(lastStripe.rawData,nline,[]);

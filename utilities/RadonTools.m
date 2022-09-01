@@ -19,6 +19,11 @@ classdef RadonTools
         [R_fine,~]=radon(data_chunk,theta+angles_fine);
         theta_fine= selection_function(R_fine,theta+angles_fine);
     end
+
+    function local_max_center_xy = get_local_center(max_r,max_theta,image_size)
+        image_center = image_size ./ 2 - 0.5;
+        local_max_center_xy = image_center([2,1]) + [cosd(max_theta), -sind(max_theta)] .* max_r;
+    end
     
     function [slope,intercept] = get_slope_and_intercept(max_r,max_theta,image_size)
         image_center = image_size ./ 2 - 0.5;
