@@ -20,7 +20,7 @@ end
 
 dt_mov_max = movmax(A, window_size(1), 1, 'omitnan');
 if ~isvector(A)    
-    for iter_dim = 2 : num_dim
+    for iter_dim = 1 : num_dim
     dt_mov_max = movmax(dt_mov_max, window_size(iter_dim), iter_dim, 'omitnan');
     end
 end

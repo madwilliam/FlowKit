@@ -28,5 +28,25 @@ classdef Plotter
         ax.XLabel.String = 'Theta (degrees)';
         ax.YLabel.String = 'Standard deviation';
        end
+
+       function plot_detected_stripes(image,locations,slopes,time)
+            figure
+            ax1 = subplot(2,1,1);
+            ax2 = subplot(2,1,2);
+            hold(ax1,'on')
+            imagesc(ax1,image)
+            nlines = numel(locations);
+            x = 1:size(image,2);
+            for linei = 1:nlines
+                loaction = locations(linei);
+                slope = slopes(linei);
+                intercept = floor(size(image,1)/2)-slope .* loaction;
+                y=slopes(linei)*x+intercept;
+                plot(ax1,x,y,'color','red')
+            end
+            plot(ax2,time,slopes)
+            ylim(ax1,[1,size(image,1)])
+            xlim(ax1,[1,size(image,2)])
+       end
    end
 end

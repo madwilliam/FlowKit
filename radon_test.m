@@ -17,8 +17,8 @@ path = '/home/zhw272/data/mtar.mat';
 image = load(path).out;
 
 marked_data = image(:,1:8000);
-
-imagesc(imageData)
+figure
+imagesc(preprocess_data(imcomplement(imageData(:,1:1000)))>25)
 
 imagesc(edge(imageData))
 %%
@@ -26,6 +26,18 @@ csvwrite('/home/zhw272/code for ben/pack-071022_08-19-22_vessel1_100ms_50mW_0000
 %%
 [marked_slopes,time]=get_slope_from_line_scan(marked_data,100);
 [raw_slopes,time,locations,rval]=get_slope_from_line_scan(imcomplement(imageData),100);
+%
+
+[raw_slopes_old,time_old,locations_old,rval_old]=get_slope_from_line_scan(imcomplement(imageData),100);
+
+%%
+
+imagesc(imageData(:,1:100));
+imagesc(imcomplement(imageData(:,1:100)));
+figure
+imagesc(imageData)
+imagesc(imcomplement(imageData))
+
 %%
 imagesc(imageData)
 
@@ -58,36 +70,29 @@ xlim([1,size(md,2)])
 
 %%
 figure
-ax1 = subplot(211);
-ax2 = subplot(212);
+ax1 = subplot(311);
+ax2 = subplot(312);
+ax3 = subplot(313);
 img = imcomplement(imageData);
 img = img - mean(imcomplement(imageData),'all');
 imagesc(ax1,img)
-plot(ax2,time,raw_slopes)
-hold(ax2,'on')
-plot(ax2,time,marked_slopes)
-
+plot(ax2,time,raw_slopes-marked_slopes)
+plot(ax3,time,raw_slopes_old-marked_slopes)
+title(ax2,'new method detection-manual')
+title(ax3,'old method detection-manual')
 %%
 %plot all slope detections
-figure
-ax1 = subplot(2,1,1);
-hold(ax1,'on')
-img = marked_data;
-imagesc(ax1,img)
-nlines = numel(locations);
-x = 1:size(imageData,2);
-for linei = 1:nlines
-    loaction = locations(linei);
-    slope = raw_slopes(linei);
-    intercept = floor(size(imageData,1)/2)-slope .* loaction;
-    y=raw_slopes(linei)*x+intercept;
-    plot(ax1,x,y,'color','red')
-end
-ax2 = subplot(2,1,2);
-plot(ax2,time,raw_slopes)
-ylim(ax1,[1,size(marked_data,1)])
-xlim(ax1,[1,size(marked_data,2)])
+Plotter.plot_detected_stripes(marked_data,locations,raw_slopes,time)
+%%
+[raw_slopes,time,locations]=get_slope_from_line_scan(imcomplement(data_chunk),100);
+Plotter.plot_detected_stripes(data_chunk,locations,raw_slopes,time)
 
+%%
+std(raw_slopes-marked_slopes)
+std(raw_slopes_old-marked_slopes)
+
+mean(abs(raw_slopes-marked_slopes))
+mean(abs(raw_slopes_old-marked_slopes))
 %%
 figure
 ax1 = subplot(2,1,1);
@@ -99,6 +104,6 @@ plot(ax2,time,(raw_slopes-marked_slopes)*dx_dt,'color','r')
 figure
 histogram(raw_slopes-marked_slopes)
 %%
-is_local_extrema_Q = fun_array_local_maximum(data_array, window_size);
-index1d = find(is_local_extrema_Q);
-index2d = fun_ind2sub(size(is_local_extrema_Q), index1d);
+[all_slopes,all_locations]=get_slope_from_all_stripes(imageData,100,1:179);
+
+plot(all_locations,all_slopes)
