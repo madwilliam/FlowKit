@@ -1,4 +1,4 @@
-function [zz3Top]=radonDynamicWindow( dataDir, analDir, outDir )
+function [zz3Top]=calculate_velocity( dataDir, analDir, outDir )
 zz3Top=3; 
 cd( dataDir );
 meta=dir([dataDir '*.meta.txt' ]);
@@ -14,7 +14,7 @@ for tiffi=1:size( tif_names, 1 )
             [SI,RoiGroups] = parse_scan_image_meta([dataDir meta_name]);
             scan_field = RoiGroups.imagingRoiGroup.rois.scanfields;
             sizeXYmicron = 80.7*scan_field.sizeXY;
-            lineLengthum=sqrt(sizeXYmicron(1,1)^2 + sizeXYmicron(1,2)^2);
+            lineLengthum=sqrt(sizeXYmicron(1)^2 + sizeXYmicron(2)^2);
             sampleRate = SI.hScan2D.sampleRate;
             duration = scan_field.duration;
             umPerPixel=(lineLengthum/(duration*sampleRate));
