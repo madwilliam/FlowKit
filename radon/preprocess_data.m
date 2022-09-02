@@ -1,30 +1,25 @@
-function data = preprocess_data(data,ax4,ax5)
+function data = preprocess_data(data)%,ax4,ax5)
     data = data-mean(data,'all');
     mean_data = mean(data,2);
     mean_data = repmat(mean_data,1,size(data,2));
     mean_data = cast(mean_data,class(data));
     data = data-mean_data;
-    data = fancy_processing(data,ax4,ax5);
+    data = fancy_processing(data);%,ax4,ax5);
 end
 
-function data = fancy_processing(data,ax4,ax5)
+function data = fancy_processing(data)%,ax4,ax5)
     data = imgaussfilt(data,5);
     [f,xi] = ksdensity(double(reshape(data,[],1))); 
 
-    hold(ax4,'on')
-    histogram(ax4,data)
-    plot(ax4,xi,f*10000,'color','r');
-    xlim(ax4,[0,max(max(data))])
+%     hold(ax4,'on')
+%     histogram(ax4,data)
+%     plot(ax4,xi,f*10000,'color','r');
+%     xlim(ax4,[0,max(max(data))])
 
     [~,peak_location,~,peak_prominance] = findpeaks(f);
     if numel(peak_prominance)>=2
         [~,pid] = sort(peak_prominance);
         top_peaks = sort(peak_location(pid(end-1:end)));
-
-%         for pi = 1:2
-%             scatter(ax4,xi(top_peaks(pi)),peaks(pi)*10000,'rx')
-%         end
-    
         [~,through_location,~,~] = findpeaks(-f);
         location = [];
         for loci = through_location
@@ -38,9 +33,9 @@ function data = fancy_processing(data,ax4,ax5)
     else
         threshold = xi(peak_location(1));
     end
-
-    line(ax4,[threshold,threshold],[0,500],'color','r')
-    imagesc(ax5,data)
+% 
+%     line(ax4,[threshold,threshold],[0,500],'color','r')
+%     imagesc(ax5,data)
 
     data = data>threshold;
 end
