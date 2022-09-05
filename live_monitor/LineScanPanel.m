@@ -90,7 +90,7 @@ classdef LineScanPanel < handle %& dynamicprops
             self.slope_data = zeros(1,self.nsample_to_show);
             self.display_time = zeros(1,self.nsample_to_show);
             data_per_chunk = (self.n_sample-self.radon_chunk_size)/floor(self.radon_chunk_size*0.25)+1;
-            self.display_data = zeros(self.data_range(2)-self.data_range(1)+1,floor(self.nsample_to_show/data_per_chunk*self.radon_chunk_size));
+            self.display_data = zeros(self.data_range(2)-self.data_range(1)+1,floor(self.nsample_to_show/data_per_chunk*self.n_sample));
         end
         
         function update_data(self,slopes,time)
