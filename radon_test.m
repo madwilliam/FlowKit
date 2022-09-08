@@ -1,5 +1,5 @@
 %%
-path = '/home/zhw272/code for ben/';
+path = '/home/zhw272/better_data/';
 files = dir([path '*.tif']);
 filei = [path,files(1).name];
 t = Tiff(filei,'r');

@@ -20,3 +20,8 @@ sc![image-20220902105743424](/home/zhw272/.config/Typora/typora-user-images/imag
 5. find trough between two peaks
 6. use trough to threshold image obtaining binary mask
 
+
+
+![image-20220902110805698](/home/zhw272/.config/Typora/typora-user-images/image-20220902110805698.png)
+
+New method shows more adherence to human labels

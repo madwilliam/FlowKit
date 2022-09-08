@@ -5,7 +5,7 @@ function plot_diagnostic(data_chunk)
     [R,radius]=radon(data_chunk,angles);
     [slope,~]=get_slope_from_line_scan(data_chunk,size(data_chunk,2));
     theta = mod(floor(atand(1/slope))+180,180);
-    [~,max_theta_id] = max(max(R));
+    [~,max_theta_id] = min(abs(angles-theta));
     [~,max_radius_id] = max(R(:,max_theta_id));
     max_R_id = [max_radius_id,theta];
     [~,intercept] = RadonTools.get_slope_and_intercept(radius(max_radius_id),angles(theta),size(data_chunk));
