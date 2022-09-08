@@ -2,7 +2,8 @@
 analDir = '/home/zhw272/AutoCropped/';
 dataDir = '/home/zhw272/data/';
 outDir = '/home/zhw272/output/';
-calculate_velocity( dataDir, analDir, outDir );
+cedpath = '/home/zhw272/CEDMATLAB/';
+calculate_velocity( dataDir, analDir, outDir,cedpath );
 
 
 meta=dir(append(dataDir,'*.meta.txt' ));

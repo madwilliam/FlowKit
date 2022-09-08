@@ -1,5 +1,5 @@
 function save_smr(save_path,velosity,stimulus,time,cedpath)
-    if nargin = =4
+    if nargin ==4
         cedpath = "C:\CEDMATLAB\CEDS64ML";
     end
     addpath( cedpath );

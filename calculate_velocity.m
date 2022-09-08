@@ -1,4 +1,7 @@
-function calculate_velocity( dataDir, analDir, outDir )
+function calculate_velocity( dataDir, analDir, outDir,cedpath)
+if nargin ==3
+    cedpath = "C:\CEDMATLAB\CEDS64ML";
+end
 meta=dir(append(dataDir,'*.meta.txt' ));
 tif_names=dir(strcat(analDir,'*.tif'));
 for tiffi=1:size( tif_names, 1 )
@@ -45,7 +48,7 @@ for tiffi=1:size( tif_names, 1 )
                 end
                 DSVals = M(1 : n : end);
                 DSVals=int16(DSVals);
-                save_smr(smr,vOutInf,DSVals,tbase)
+                save_smr(smr,vOutInf,DSVals,tbase,cedpath)
             end
         end
     end
