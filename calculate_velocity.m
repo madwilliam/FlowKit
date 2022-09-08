@@ -47,6 +47,7 @@ for tiffi=1:size( tif_names, 1 )
                 end
                 DSVals = M(1 : n : end);
                 DSVals=int16(DSVals);
+                save_smr(smr,vOutInf,DSVals,tbase)
 
     
             end
