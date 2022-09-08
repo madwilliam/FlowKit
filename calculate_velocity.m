@@ -1,14 +1,16 @@
 function calculate_velocity( dataDir, analDir, outDir )
 meta=dir(append(dataDir,'*.meta.txt' ));
-tif_names=dir([analDir '*.tif' ]);
+tif_names=dir(strcat(analDir,'*.tif'));
 for tiffi=1:size( tif_names, 1 )
     tifName=tif_names( tiffi ).name;
     bname=erase( tifName, ".tif" );
     for metai=1:size( meta, 1 )    
         if contains( meta( metai ).name, bname )==1
-            meta_name=append( bname, '.meta.txt' );
-            [dx,dt] = get_dxdt([dataDir meta_name]);
-            data=imread([analDir tifName]);
+            disp(strcat('working on ',bname))
+            meta_name=strcat( bname, '.meta.txt' );
+            meta_path = strcat(dataDir,meta_name);
+            [dx,dt] = get_dxdt(meta_path);
+            data=imread(strcat(analDir,tifName));
             if size(data, 1) > size(data, 2)
                 data=data.';
             end
@@ -20,6 +22,7 @@ for tiffi=1:size( tif_names, 1 )
             vOut=v.';
             vOutInf=vOut;
             vOutInf(vOutInf==Inf)=max(vOut(vOut~=Inf));
+            [SI,~] = parse_scan_image_meta(meta_path);
             channels=SI.hChannels.channelSave; 
             if channels(end) == 4
                 cd ( dataDir )
