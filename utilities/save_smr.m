@@ -1,5 +1,7 @@
-function save_smr(save_path,velosity,stimulus,time)
-    cedpath = "C:\CEDMATLAB\CEDS64ML";
+function save_smr(save_path,velosity,stimulus,time,cedpath)
+    if nargin = =4
+        cedpath = "C:\CEDMATLAB\CEDS64ML";
+    end
     addpath( cedpath );
     CEDS64LoadLib( cedpath );  
     fhand2 = CEDS64Create( save_path ); 
