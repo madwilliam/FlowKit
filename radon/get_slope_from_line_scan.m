@@ -55,11 +55,16 @@ function [theta_fine,radius,max_val] = two_step_radon(data_chunk,angles_to_detec
     [R,radii]=radon(data_chunk,angles_to_detect);
     theta= get_max_value_angle(R,angles_to_detect);
     [R_fine,~]=radon(data_chunk,theta+angles_fine);
-    theta_fine= get_max_variance_angle(R_fine,theta+angles_fine);
-    [~,theta_id] = min(abs(angles_to_detect-theta_fine));
-    [~,radius_id] = max(R(:,theta_id));
-    max_val= max(max(R));
-    radius = radii(radius_id);
+    theta_fine= get_max_variance_minus_kurtosis_angle(R_fine,theta+angles_fine);
+    if ~isnan(theta_fine)
+        [~,theta_id] = min(abs(angles_to_detect-theta_fine));
+        [~,radius_id] = max(R(:,theta_id));
+        max_val= max(max(R));
+        radius = radii(radius_id);
+    else
+        max_val = NaN;
+        radius = NaN;
+    end
 
 %     imagesc(ax1,data_chunk)
 %     imagesc(ax2,R)
@@ -76,6 +81,20 @@ function max_variance_theta= get_max_variance_angle(R,angles_to_detect)
    variance=var(R);
    [~,max_variance_di]=max(variance);
    max_variance_theta=angles_to_detect(max_variance_di);  
+end
+
+function max_variance_theta= get_max_variance_minus_kurtosis_angle(R,angles_to_detect)
+   variance=var(R);
+   kurt = kurtosis(R);
+   max_var = max(variance);
+   [~,max_variance_di]=max(variance-kurt);
+%    if max_var >2000000 %&& max(R(:,max_variance_di))>3000
+%         max_variance_theta=angles_to_detect(max_variance_di); 
+%    else
+%        max_variance_theta = NaN;
+%    end
+
+   max_variance_theta=angles_to_detect(max_variance_di); 
 end
 
 function [slope,location,intercept]= get_slope_and_location(max_r,max_theta,image_size)
