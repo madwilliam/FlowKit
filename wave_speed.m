@@ -6,9 +6,10 @@ t = Tiff(filei,'r');
 all_data = read(t);
 imageData = all_data(150:end,1:8000); 
 imageData = imcomplement(imageData);
-
 %%
-LineScanAnnalyzer(imageData,100)
+panel = LineScanAnnalyzerPanel;
+%%
+anna = LineScanAnnalyzer(imageData,100);
 %%
 raw_data = double(imageData(:,1:8000));
 data = raw_data-mean(raw_data,'all');

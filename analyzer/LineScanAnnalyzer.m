@@ -16,6 +16,7 @@ classdef LineScanAnnalyzer < handle %& dynamicprops
    end
    methods
        function self = LineScanAnnalyzer(data,chunk_size)
+          self.use_physical_units = false;
           [self.n_pixel,self.n_sample] = size(data);
           self.data = data;
           self.panel = LineScanAnnalyzerPanel;
@@ -32,7 +33,15 @@ classdef LineScanAnnalyzer < handle %& dynamicprops
        end
 
        function update_plot(self)
-          [self.slopes,self.time]=get_slope_from_line_scan(self.data,self.radon_chunk_size);
+          axInnerPos1 = self.panel.UIAxes.InnerPosition;
+          axInnerPos2 = self.panel.UIAxes_2.InnerPosition;
+          axInnerPos3 = self.panel.UIAxes2.InnerPosition;
+          [self.slopes,self.time,locations]=get_slope_from_line_scan(self.data,self.radon_chunk_size);
+          flux = get_flux(self.slopes,self.time,locations,self.dt,self.radon_chunk_size);
+          if self.use_physical_units
+              self.slopes = self.slopes*self.dx/self.dt;
+              self.time = self.time*self.dt;
+          end
           hold(self.panel.UIAxes_2,'off')
           imagesc(self.panel.UIAxes,self.data,'XData', [0 0], 'YData', [0 0])
           stepsize = 0.25*self.radon_chunk_size;
@@ -45,9 +54,17 @@ classdef LineScanAnnalyzer < handle %& dynamicprops
           hold(self.panel.UIAxes_2,'on')
           self.current_line = line(self.panel.UIAxes_2,[1,1],[-100,100],'color','r');
           self.update_line()
-          ylim(self.panel.UIAxes_2,[-2,2])
+          plot(self.panel.UIAxes2,(1:numel(flux))*0.1,flux)
+          ylim(self.panel.UIAxes_2,[min(self.slopes)-1,max(self.slopes)+1])
+          xlim(self.panel.UIAxes_2,[0 max(self.time)])
           xlim(self.panel.UIAxes,[0 self.n_sample])
           ylim(self.panel.UIAxes,[0,self.n_pixel])
+          innerPosDiff1 = axInnerPos1 - self.panel.UIAxes.InnerPosition;  
+          innerPosDiff2 = axInnerPos2 - self.panel.UIAxes_2.InnerPosition;  
+          innerPosDiff3 = axInnerPos3 - self.panel.UIAxes2.InnerPosition;  
+          self.panel.UIAxes.Position = self.panel.UIAxes.Position + innerPosDiff1;
+          self.panel.UIAxes_2.Position = self.panel.UIAxes_2.Position + innerPosDiff2;
+          self.panel.UIAxes2.Position = self.panel.UIAxes2.Position + innerPosDiff3;
        end
 
       function main(self)
@@ -69,9 +86,15 @@ classdef LineScanAnnalyzer < handle %& dynamicprops
       
         function update_values(self)
             if strcmp(self.panel.UnitsButtonGroup.SelectedObject.Text,'Physical Unit')
-                self.use_physical_units = true;
+                if self.use_physical_units ~= true
+                    self.use_physical_units = true;
+                    self.update_plot();
+                end
             else
-                self.use_physical_units = false;
+                if self.use_physical_units ~= false
+                    self.use_physical_units = false;
+                    self.update_plot();
+                end
             end
             self.dx = self.panel.dxEditField.Value;
             self.dt = self.panel.dtEditField.Value;

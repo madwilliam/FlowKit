@@ -4,7 +4,7 @@ files = dir([path '*.tif']);
 filei = [path,files(1).name];
 t = Tiff(filei,'r');
 all_data = read(t);
-imageData = all_data(150:end,16000:24000);
+imageData = all_data(150:end,:);
 imagesc(imageData)
 %%
 figure
@@ -21,16 +21,15 @@ plot(velocity-2)
 %%
 imagesc(imageData)
 %%
-0%%
+%%
 path = '/home/zhw272/data/mtar.mat';
 image = load(path).out;
 marked_data = image(:,1:8000);
-figure
-imagesc(marked_data)
 %%
 [location_per_stripe,slopes_per_stripe,time_per_stripe] = find_speed_per_cell(locations,raw_slopes,time);
 Plotter.plot_detected_stripes(marked_data,location_per_stripe,slopes_per_stripe,time_per_stripe)
-
+[flux,~] = histcounts(location_per_stripe,40);
+plot(flux)
 %%
 figure
 ax1 = subplot(311);

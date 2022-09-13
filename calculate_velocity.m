@@ -18,10 +18,12 @@ for tiffi=1:size( tif_names, 1 )
                 data=data.';
             end
             data=double(data);
-            [raw_slopes,~]=get_slope_from_line_scan(imcomplement(data),100);
-            v = raw_slopes*dx/dt;
-            vOutInf=v.';
-            vOutInf(vOutInf==Inf)=max(vOutInf(vOutInf~=Inf));
+            [raw_slopes,time,locations]=get_slope_from_line_scan(imcomplement(data),100);
+            flux = get_flux(raw_slopes,time,locations,dt);
+            speed = raw_slopes*dx/dt;
+            flux = flux.';
+            speed=speed.';
+            speed(speed==Inf)=max(speed(speed~=Inf));
             [SI,~] = parse_scan_image_meta(meta_path);
             channels=SI.hChannels.channelSave; 
             if channels(end) == 4
@@ -32,11 +34,11 @@ for tiffi=1:size( tif_names, 1 )
                 smr=append( outDir, '\', bname, '.smr' );
                 smr=char( smr );
                 fileTime=size(data,2)*dt/1000; %dt back to sec from ms
-                tbase = fileTime/numel(vOutInf);
-                n=numel(vOutInf);
-                DSVals = M(1 : n : end);
-                DSVals=int16(DSVals);
-                save_smr(smr,vOutInf,DSVals,tbase,cedpath)
+                time = fileTime/numel(speed);
+                n=numel(speed);
+                stimulus = M(1 : n : end);
+                stimulus=int16(stimulus);
+                save_smr(smr,speed,stimulus,flux,time,cedpath)
             end
         end
     end

@@ -1,7 +1,7 @@
-function [location_per_stripe,slopes_per_stripe,time_per_stripe] = find_speed_per_cell(locations,raw_slopes,time)
+function [location_per_stripe,slopes_per_stripe,time_per_stripe] = find_speed_per_cell(raw_slopes,time,locations)
     threshold = 30;
     inter_stripe_interval = diff(locations);
-    [start_time,end_time] = find_event_start_and_end_time(inter_stripe_interval<30);
+    [start_time,end_time] = find_event_start_and_end_time(inter_stripe_interval<threshold);
     nstripes = numel(start_time);
     location_per_stripe = zeros(1,nstripes);
     slopes_per_stripe = zeros(1,nstripes);
