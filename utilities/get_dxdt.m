@@ -1,5 +1,4 @@
-function [dx,dt] = get_dxdt(meta_path)
-    [SI,RoiGroups] = parse_scan_image_meta(meta_path);
+function [dx,dt] = get_dxdt(SI,RoiGroups)
     dx=1;
     dt=1;
     for roi = 1:numel(RoiGroups.imagingRoiGroup.rois)

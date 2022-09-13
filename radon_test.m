@@ -5,22 +5,11 @@ filei = [path,files(1).name];
 t = Tiff(filei,'r');
 all_data = read(t);
 imageData = all_data(150:end,:);
-imagesc(imageData)
 %%
-figure
-imagesc(imageData(:,1:1000))
-%%
-plot_diagnostic(imageData(:,400:500))
+anna = LineScanAnnalyzer(imageData,100);
 %%
 [raw_slopes,time,locations,rval]=get_slope_from_line_scan(imcomplement(imageData),100);
 Plotter.plot_detected_stripes(imcomplement(imageData),location_per_stripe,slopes_per_stripe,time_per_stripe)
-
-%%
-[velocity] = LSPIV(double(imageData));
-plot(velocity-2)
-%%
-imagesc(imageData)
-%%
 %%
 path = '/home/zhw272/data/mtar.mat';
 image = load(path).out;
@@ -42,5 +31,4 @@ plot(ax2,time,raw_slopes-marked_slopes)
 plot(ax3,time,raw_slopes_old-marked_slopes)
 title(ax2,'new method detection-manual')
 title(ax3,'old method detection-manual')
-
-
+%%
