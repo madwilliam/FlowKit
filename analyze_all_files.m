@@ -1,5 +1,5 @@
-path = 'Y:\Data and Analysis\Data\Two Photon Directory';
-out_dir='C:\Users\dklab\Desktop\test';
+path = 'C:\Users\Montana\Documents\Server_Data and Analysis\Test\';
+out_dir='C:\Users\Montana\Documents\Server_Data and Analysis\Test\';
 meta_files = FileHandler.get_meta_files(path);
 tif_files = FileHandler.get_tif_files(path);
 pmt_files = FileHandler.get_pmt_files(path);
@@ -46,5 +46,5 @@ for i = 1:numel(shared_experiment)
             stimulus = NaN;
         end
     end
-    save(append(out_dir,'\',file_name,'.m'),'speed','stimulus','flux','time')
+    save(append(out_dir,'\',file_name,'.mat'),'speed','stimulus','flux','time')
 end
