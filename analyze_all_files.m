@@ -1,12 +1,9 @@
 path = 'Y:\Data and Analysis\Data\Two Photon Directory';
-out_dir='\folder\to\store\output\';
+out_dir='C:\Users\dklab\Desktop\test';
 meta_files = FileHandler.get_meta_files(path);
 tif_files = FileHandler.get_tif_files(path);
 pmt_files = FileHandler.get_pmt_files(path);
 [shared_experiment,meta_no_tif,tif_no_meta] = FileHandler.get_experiments_with_meta_and_tif(meta_files,tif_files);
-file_name = shared_experiment(1);
-[SI,RoiGroups] = FileHandler.load_meta_data(meta_files,file_name);
-image = FileHandler.load_image_data(tif_files,file_name);
 for i = 1:numel(shared_experiment)
     file_name = shared_experiment(i);
     disp(append('working on ',file_name))
@@ -26,12 +23,13 @@ for i = 1:numel(shared_experiment)
     channels=SI.hChannels.channelSave; 
     if channels(end) == 4
         pmt_file = FileHandler.get_file(pmt_files,file_name);
-        fid=fopen([pmt_file.folder pmt_file.name],'r');
+        fid=fopen([pmt_file.folder '\' pmt_file.name],'r');
         M=fread(fid,'int16=>int16');
         M=M(2:2:end);
         M=int16(M);
-        stimulus = M(1 : n_data : end);
-        stimulus=int16(stimulus);
+        n = numel(M)/n_data;
+        stimulus = M(1 : floor(n) : end);
+        stimulus=int16(stimulus(1:n_data));
     else
         space_average = mean( image,1 );
         [ ~, stimulation_start ] = max( space_average );
