@@ -12,3 +12,4 @@ C = imfuse(image,mask,'falsecolor','Scaling','independent','ColorChannels',[1 2 
 imshow(C)
 
 
+panel = PowerboxModPanel;
