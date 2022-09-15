@@ -1,7 +1,8 @@
 path = 'Y:\Data and Analysis\Data\Two Photon Directory';
+tiff_path = 'Y:\Data and Analysis\Analysis';
 out_dir='C:\Users\dklab\Desktop\test';
 meta_files = FileHandler.get_meta_files(path);
-tif_files = FileHandler.get_tif_files(path);
+tif_files = FileHandler.get_tif_files(tiff_path);
 pmt_files = FileHandler.get_pmt_files(path);
 [shared_experiment,meta_no_tif,tif_no_meta] = FileHandler.get_experiments_with_meta_and_tif(meta_files,tif_files);
 for i = 1:numel(shared_experiment)
