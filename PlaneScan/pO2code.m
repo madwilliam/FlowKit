@@ -1,10 +1,12 @@
 %% pO2 codes for sharing
 
 %% load data and arrange lines with phosphorescence decay with option to substract baseline (laser off) lines
-ttif = Tiff(filelocation.experiments(run).name,'r');
-%t = Tiff(trialname,'r');
-pO2.imageData = read(tif);
-figure('Name',filelocation.experiments(run).name); set(gca,'FontSize',12);
+
+tiffile = 'C:\Users\dklab\data\Oxyphor2Presonantexamples\2020106sinusstim\2Pbin12_AVG10_00001.tif';
+ttif = Tiff(tiffile,'r');
+pO2.imageData = read(ttif);
+
+figure('Name','2Pbin12_AVG10_00001'); set(gca,'FontSize',12);
 subplot(2,3,1);
 imagesc(pO2.imageData);axis ij;axis image; axis off
 xpixels= length(pO2.imageData(on,:));
