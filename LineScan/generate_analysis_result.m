@@ -3,8 +3,10 @@ shared_experiment = FileHandler.get_experiments_with_meta_and_tif(meta_files,tif
 for i = 1:numel(shared_experiment)
     file_name = shared_experiment(i);
     disp(append('working on ',file_name))
-    image = FileHandler.load_image_data(tif_files,file_name);
-    [SI,RoiGroups] = FileHandler.load_meta_data(meta_files,file_name);
+    tif_file = FileHandler.get_file(tif_files,file_name);
+    image = FileHandler.load_image_data(tif_file);
+    meta_file = FileHandler.get_file(meta_files,file_name);
+    [SI,RoiGroups] = FileHandler.load_meta_data(meta_file);
     [dx,dt] = get_dxdt(SI,RoiGroups);
     [raw_slopes,time,locations]=get_slope_from_line_scan(imcomplement(image),100);
     flux = get_flux(raw_slopes,time,locations,dt,100);
@@ -19,6 +21,6 @@ for i = 1:numel(shared_experiment)
     channels=SI.hChannels.channelSave;
     stimulus = get_stimulus(image,channels,pmt_files,file_name,nsample,n_data);
     save(append(out_dir,'\',file_name,'.mat'),'speed','stimulus','flux','time', ...
-        'time_per_data','dx','dt','locations','raw_slopes')
+        'time_per_data','dx','dt','locations','raw_slopes','tif_file','meta_file')
 end
 end

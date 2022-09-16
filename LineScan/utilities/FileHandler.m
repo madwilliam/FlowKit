@@ -53,13 +53,11 @@ classdef FileHandler
            tif_no_meta = setdiff(tif_names,meta_names);
        end
 
-       function [SI,RoiGroups] = load_meta_data(meta_files,file_name)
-           meta_file = FileHandler.get_file(meta_files,file_name);
+       function [SI,RoiGroups] = load_meta_data(meta_file)
            [SI,RoiGroups] = parse_scan_image_meta(fullfile(meta_file.folder, meta_file.name));
        end
 
-       function image = load_image_data(tif_files,file_name)
-           tif_file = FileHandler.get_file(tif_files,file_name);
+       function image = load_image_data(tif_file)
            t = Tiff(fullfile(tif_file.folder, tif_file.name),'r');
            image = read(t);
            if size(image,1)>size(image,2)

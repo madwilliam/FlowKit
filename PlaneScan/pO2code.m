@@ -2,21 +2,44 @@
 
 %% load data and arrange lines with phosphorescence decay with option to substract baseline (laser off) lines
 
-tiffile = 'C:\Users\dklab\data\Oxyphor2Presonantexamples\2020106sinusstim\2Pbin12_AVG10_00001.tif';
+tiffile = 'C:\Users\dklab\data\Oxyphor2Presonantexamples\invivo\artA_stim100ms_30perc_00002.tif';
 ttif = Tiff(tiffile,'r');
-pO2.imageData = read(ttif);
+image = read(ttif);
+
+tiff_info = imfinfo(tiffile); % return tiff structure, one element per image
+tiff_stack = imread(tiffile, 1) ; % read in first image
+%concatenate each successive tiff to tiff_stack
+n_image = size(tiff_info, 1);
+for ii = 2 : n_image
+    waitbar(ii/n_image,f,append('Loading your data (',num2str(ii),'/',num2str(n_image)));
+    temp_tiff = imread(tiffile, ii);
+    tiff_stack = cat(3 , tiff_stack, temp_tiff);
+end
+tmean = mean(image,2);
+[peaks,lines] = findpeaks(tmean,'MinPeakProminence',1000);
+hold on
+plot(tmean)
+scatter(lines,peaks)
+hold off
+
+plot(image(lines(2)+2,:))
+image = imread(tiffile, 500) ; 
+imagesc(tiff_stack)
 
 figure('Name','2Pbin12_AVG10_00001'); set(gca,'FontSize',12);
 subplot(2,3,1);
-imagesc(pO2.imageData);axis ij;axis image; axis off
-xpixels= length(pO2.imageData(on,:));
-% O2Pintensity=pO2.imageData(forwardline,:);
-%O2Pintensity(1,513:1024)=fliplr(pO2.imageData(backwardline,:));
-% O2Pintensity(1,(1+xpixels):(2*xpixels))=fliplr(pO2.imageData(backwardline,:));
-% O2Pintensity(1,(1+xpixels*2):(3*xpixels))=pO2.imageData(forwardline+1,:);
-% O2Pintensity(1,(1+xpixels*3):(4*xpixels))=fliplr(pO2.imageData(backwardline+1,:));
-O2Ponline(1,:)=[pO2.imageData(on,:) fliplr(pO2.imageData(on+1,:)) pO2.imageData(on+2,:) fliplr(pO2.imageData(on+3,:))];
-%O2Pbaseline(1,:)=[pO2.imageData(on-2,:) fliplr(pO2.imageData(on-1,:)) pO2.imageData(on+4,:) fliplr(pO2.imageData(on+5,:))];
+imagesc(image);axis ij;axis image; axis off
+xpixels= length(image(on,:));
+% O2Pintensity=image(forwardline,:);
+%O2Pintensity(1,513:1024)=fliplr(image(backwardline,:));
+% O2Pintensity(1,(1+xpixels):(2*xpixels))=fliplr(image(backwardline,:));
+% O2Pintensity(1,(1+xpixels*2):(3*xpixels))=image(forwardline+1,:);
+% O2Pintensity(1,(1+xpixels*3):(4*xpixels))=fliplr(image(backwardline+1,:));
+on = zeros(size(image,2),1);
+on(1:300)=1;
+on = on==1;
+O2Ponline(1,:)=[image(on,:) fliplr(image(on+1,:)) image(on+2,:) fliplr(image(on+3,:))];
+%O2Pbaseline(1,:)=[image(on-2,:) fliplr(image(on-1,:)) image(on+4,:) fliplr(image(on+5,:))];
 O2Pintensity(1,:)=O2Ponline-O2Pbaseline;
 out.O2Pintensity(run,:)=O2Pintensity(1,:);
 fillfraction=0.9;
