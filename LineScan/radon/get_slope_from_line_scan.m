@@ -3,7 +3,7 @@ function [slopes,time,locations,rval]=get_slope_from_line_scan(data,windowsize,a
     nlines=size(data,2);
     nsteps=floor(nlines/stepsize)-3;
     if ~exist('angles_to_detect')
-      angles_to_detect=(90:160);
+      angles_to_detect=(1:180);
     end
     locations=zeros(nsteps,1);
     rval=zeros(nsteps,1);
