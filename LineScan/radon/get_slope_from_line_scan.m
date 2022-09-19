@@ -1,9 +1,9 @@
 function [slopes,time,locations,rval]=get_slope_from_line_scan(data,windowsize,angles_to_detect)
     stepsize=.25*windowsize;
-    nlines=size(data,2);
-    nsteps=floor(nlines/stepsize)-3;
+    nsample = size(data,2);
+    nsteps=floor(nsample/stepsize)-3;
     if ~exist('angles_to_detect')
-      angles_to_detect=(1:180);
+      angles_to_detect=(90:160);
     end
     locations=zeros(nsteps,1);
     rval=zeros(nsteps,1);
@@ -12,39 +12,9 @@ function [slopes,time,locations,rval]=get_slope_from_line_scan(data,windowsize,a
     for k=1:nsteps
         time(k)=1+(k-1)*stepsize+windowsize/2;
         data_chunk=data(:,1+(k-1)*stepsize:(k-1)*stepsize+windowsize);
-
-%         figure
-%         fig=gcf;
-%         fig.Position(3:4)=[200,700];
-%         ax1 = subplot(511);
-%         ax2 = subplot(512);
-%         ax3 = subplot(513);
-%         ax4 = subplot(514);
-%         ax5 = subplot(515);
-%         imagesc(ax3,data_chunk)
-%         title(ax3,['from ' num2str(1+(k-1)*stepsize) 'to' num2str((k-1)*stepsize+windowsize)])
-
-        data_chunk = preprocess_data(data_chunk);%,ax4,ax5);
-        [theta,radius,max_val] = two_step_radon(data_chunk,angles_to_detect);%,ax1,ax2);
-        [slopes(k),locations(k),intercept]= get_slope_and_location(radius,theta,size(data_chunk));
-        slope = slopes(k);
-        x = 1:size(data_chunk,2);
-        y=slope*x+intercept;
-
-%         hold(ax1,'on')
-%         hold(ax3,'on')
-%         plot(ax1,x,y,'color','red')
-%         plot(ax3,x,y,'color','red')
-%         hold(ax1,'off')
-%         ylim(ax1,[1,size(data_chunk,1)])
-%         xlim(ax1,[1,size(data_chunk,2)])
-%         title(ax1,'input to radon')
-%         title(ax2,'radon sinogram')
-%         title(ax3,{'inverted data chunk',' before preprocessing'})
-%         title(ax4,'histogram after gaussian')
-%         title(ax5,{'image chunk after ','preprocessing and gaussian'})
-%         pause
-
+        data_chunk = preprocess_data(data_chunk,windowsize);
+        [theta,radius,max_val] = two_step_radon(data_chunk,angles_to_detect);
+        [slopes(k),locations(k),~]= get_slope_and_location(radius,theta,size(data_chunk));
         locations(k) = locations(k)+1+(k-1)*stepsize;
         rval(k) = max_val;
     end
@@ -65,11 +35,6 @@ function [theta_fine,radius,max_val] = two_step_radon(data_chunk,angles_to_detec
         max_val = NaN;
         radius = NaN;
     end
-
-%     imagesc(ax1,data_chunk)
-%     imagesc(ax2,R)
-%     hold(ax2,'on')
-%     scatter(ax2,theta_id,radius_id,'rx')
 end
 
 function max_value_theta= get_max_value_angle(R,angles_to_detect)
@@ -86,14 +51,8 @@ end
 function max_variance_theta= get_max_variance_minus_kurtosis_angle(R,angles_to_detect)
    variance=var(R);
    kurt = kurtosis(R);
-   max_var = max(variance);
+%    max_var = max(variance);
    [~,max_variance_di]=max(variance-kurt);
-%    if max_var >2000000 %&& max(R(:,max_variance_di))>3000
-%         max_variance_theta=angles_to_detect(max_variance_di); 
-%    else
-%        max_variance_theta = NaN;
-%    end
-
    max_variance_theta=angles_to_detect(max_variance_di); 
 end
 

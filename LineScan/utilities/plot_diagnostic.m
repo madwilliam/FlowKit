@@ -1,6 +1,6 @@
-function plot_diagnostic(data_chunk)
+function plot_diagnostic(data_chunk,chunk_size)
     angles = 1:179;
-    data_chunk = preprocess_data(data_chunk);
+    data_chunk = preprocess_data(data_chunk,chunk_size);
     [R,radius]=radon(data_chunk,angles);
     [slope,~]=get_slope_from_line_scan(data_chunk,size(data_chunk,2));
     theta = mod(floor(atand(1/slope))+180,180);

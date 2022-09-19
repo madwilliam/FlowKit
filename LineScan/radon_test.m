@@ -1,12 +1,12 @@
 %%
-path = '/home/zhw272/better_data/';
+path = 'Y:\Test\Test\';
 files = dir([path '*.tif']);
-filei = [path,files(1).name];
+filei = [path,files(3).name];
 t = Tiff(filei,'r');
 all_data = read(t);
-imageData = all_data(150:end,:);
+imageData = imcomplement(all_data(1:end,:));
 %%
-anna = LineScanAnnalyzer(imageData,100);
+anna = LineScanAnnalyzer(imageData(1:end,1:8000),100);
 %%
 [raw_slopes,time,locations,rval]=get_slope_from_line_scan(imcomplement(imageData),100);
 Plotter.plot_detected_stripes(imcomplement(imageData),location_per_stripe,slopes_per_stripe,time_per_stripe)
