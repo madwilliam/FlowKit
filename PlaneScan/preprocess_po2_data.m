@@ -1,0 +1,9 @@
+function O2Ponline = preprocess_po2_data(image,lines)
+    O2Ponline=[image(lines,:) fliplr(image(lines+1,:)) image(lines+2,:) fliplr(image(lines+3,:))];
+    O2Pbaseline_avg = (image(lines+3,:)+image(lines+4,:)+image(lines+5,:))/3;
+    O2Pbaseline_avg = [O2Pbaseline_avg fliplr(O2Pbaseline_avg) O2Pbaseline_avg fliplr(O2Pbaseline_avg)];
+    O2Ponline=O2Ponline-O2Pbaseline_avg;
+    O2Ponline=double(O2Ponline);
+    bias= mean(O2Ponline(:,end-500:end)');
+    O2Ponline=O2Ponline-bias';
+    O2Ponline=O2Ponline./max(O2Ponline,[],2);

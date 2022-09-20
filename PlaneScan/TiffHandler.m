@@ -15,5 +15,17 @@ classdef TiffHandler
            n_image = size(tiff_info, 1);
        end
 
+       function image_frames = load_frames(tiffile,frame_numbers,lines,nsample)
+           nlines= numel(lines);
+           nframes = numel(frame_numbers);
+           image_frames = zeros([nframes,nlines,nsample]);
+           i=1;
+           for framei = frame_numbers
+               image = imread(tiffile, framei) ;
+               image_frames(i,:,:) = preprocess_po2_data(image,lines);
+               i=i+1;
+           end
+       end
+
    end
 end
