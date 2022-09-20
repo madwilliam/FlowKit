@@ -1,6 +1,6 @@
-path = 'Y:\Data and Analysis\Data\Two Photon Directory';
-tiff_path = 'Y:\Data and Analysis\Analysis';
-out_dir='C:\Users\dklab\Desktop\test';
+path = 'Y:\Test\Test';
+tiff_path = 'Y:\Test\Test';
+out_dir='Y:\Test\Test\WilliamOutput';
 meta_files = FileHandler.get_meta_files(path);
 tif_files = FileHandler.get_tif_files(tiff_path);
 pmt_files = FileHandler.get_pmt_files(path);
