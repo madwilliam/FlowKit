@@ -8,19 +8,23 @@ for i = 1:numel(shared_experiment)
     meta_file = FileHandler.get_file(meta_files,file_name);
     [SI,RoiGroups] = FileHandler.load_meta_data(meta_file);
     [dx,dt] = get_dxdt(SI,RoiGroups);
-    [raw_slopes,time,locations]=get_slope_from_line_scan(imcomplement(image),100);
-    flux = get_flux(raw_slopes,time,locations,dt,100);
-    speed = raw_slopes*dx/dt;
-    flux = flux.';
-    speed=speed.';
-    speed(speed==Inf)=max(speed(speed~=Inf));
-    nsample = size(image,2);
-    fileTime=nsample*dt/1000;
-    n_data = numel(speed);
-    time_per_data = fileTime/n_data;
     channels=SI.hChannels.channelSave;
-    stimulus = get_stimulus(image,channels,pmt_files,file_name,nsample,n_data);
-    save(append(out_dir,'\',file_name,'.mat'),'speed','stimulus','flux','time', ...
-        'time_per_data','dx','dt','locations','raw_slopes','tif_file','meta_file')
+    if stimulus_exists(image,channels,pmt_files,file_name)
+        result=get_slope_from_line_scan(imcomplement(image),100,@two_step_radon);
+        double_max_result=get_slope_from_line_scan(imcomplement(image),100,@double_max_radon);
+        double_variance_result=get_slope_from_line_scan(imcomplement(image),100,@double_variance_radon);
+        flux = get_flux(result.slopes,result.time,result.locations,dt,100);
+        speed = result.slopes*dx/dt;
+        flux = flux.';
+        speed=speed.';
+        speed(speed==Inf)=max(speed(speed~=Inf));
+        nsample = size(image,2);
+        fileTime=nsample*dt/1000;
+        n_data = numel(speed);
+        time_per_data = fileTime/n_data;
+        stimulus = get_stimulus(image,channels,pmt_files,file_name,nsample,n_data);
+        save(append(out_dir,'\',file_name,'.mat'),'speed','stimulus','flux','result', ...
+            'time_per_data','dx','dt','tif_file','meta_file','double_max_result','double_variance_result')
+    end
 end
 end
