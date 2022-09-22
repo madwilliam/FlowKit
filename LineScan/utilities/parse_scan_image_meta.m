@@ -1,8 +1,5 @@
 function [SI,RoiGroups] = parse_scan_image_meta(meta_name)
-    fid = fopen(meta_name); 
-    raw = fread(fid,inf); 
-    str = char(raw'); 
-    fclose(fid); 
+    str = read_text(meta_name);
     indices = strfind(str,'SI');
     start_of_last_SI_line = indices(end);
     indices = strfind(str(start_of_last_SI_line:end),'{');

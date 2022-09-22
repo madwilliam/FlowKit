@@ -1,5 +1,5 @@
 raw_data_path = 'Y:\Data and Analysis\Data\Two Photon Directory';
-tiff_path = 'Y:\Data and Analysis\Analysis\Two Photon Analysis';
+tiff_path = 'Y:\Data and Analysis\Analysis';
 out_put_dir='C:\Users\dklab\Desktop\test';
 meta_files = FileHandler.get_meta_files(raw_data_path);
 tif_files = FileHandler.get_tif_files(tiff_path);

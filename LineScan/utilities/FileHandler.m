@@ -17,6 +17,10 @@ classdef FileHandler
            tif_file = dir(strcat(path,'/**/*.tif'));
        end
 
+       function mat_file = get_mat_files(path)
+           mat_file = dir(strcat(path,'/**/*.mat'));
+       end
+
        function names = get_names(file_paths)
            names = strings(1,numel(file_paths));
            for i = 1:numel(file_paths)
@@ -69,7 +73,7 @@ classdef FileHandler
            pmt_file = FileHandler.get_file(pmt_files,file_name);
            fid=fopen([pmt_file.folder '\' pmt_file.name],'r');
            M=fread(fid,'int16=>int16');
-           stimulus=M(2:2:end);
+           stimulus=M(1:2:end);
            stimulus=int16(stimulus);
        end
 

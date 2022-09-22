@@ -1,6 +1,6 @@
-function [dx,dt] = get_dxdt(SI,RoiGroups)
-    dx=1;
-    dt=1;
+function [dx_um,dt_ms] = get_dxdt(SI,RoiGroups)
+    dx_um=1;
+    dt_ms=1;
     for roi = 1:numel(RoiGroups.imagingRoiGroup.rois)
         scan_field = RoiGroups.imagingRoiGroup.rois(roi).scanfields;
         if all(strcmp(scan_field.stimulusFunction,'scanimage.mroi.stimulusfunctions.line'))
@@ -10,8 +10,8 @@ function [dx,dt] = get_dxdt(SI,RoiGroups)
             duration = scan_field.duration;
             umPerPixel=(lineLengthum/(duration*sampleRate));
             framePeriod=SI.hRoiManager.linePeriod;
-            dx=umPerPixel; 
-            dt=framePeriod*1000; 
+            dx_um=umPerPixel; 
+            dt_ms=framePeriod*1000; 
         end
     end
 end

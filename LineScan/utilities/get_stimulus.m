@@ -1,12 +1,14 @@
-function stimulus = get_stimulus(image,channels,pmt_files,file_name,nsample,n_data)
+function [stimulus,duration] = get_stimulus(image,channels,pmt_files,file_name,nsample,n_data)
     sample_per_data = nsample/n_data;
     if channels(end) == 4
         stimulus = FileHandler.load_stimulus(pmt_files,file_name);
         n = numel(stimulus)/n_data;
         stimulus = stimulus(1 : floor(n) : end);
         stimulus=int16(stimulus(1:n_data));
+        duration=sum(stimulus>0);
         if max(stimulus)-min(stimulus) < 500
             stimulus=NaN;
+            duration=NaN;
         end
     else
         space_average = mean( image,1 );
@@ -19,9 +21,11 @@ function stimulus = get_stimulus(image,channels,pmt_files,file_name,nsample,n_da
             stimulus = zeros(1 , n_data);
             stimulation_start = floor(stimulation_start/sample_per_data);
             stimulation_end = floor(stimulation_end/sample_per_data);
-            stimulus(stimulation_start:stimulation_end)=1;
+            stimulus(stimulation_start:stimulation_end)=intmax(class(image));
+            duration=sum(stimulus>0);
         else
             stimulus = NaN;
+            duration=NaN;
         end
     end
 end
