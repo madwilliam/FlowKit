@@ -26,7 +26,9 @@ classdef LineScanAnnalyzer < handle %& dynamicprops
               set(self.panel.RadonchunksizeEditField,'Value',chunk_size);
               self.radon_chunk_size = chunk_size;
           end
-          [self.slopes,self.time]=get_slope_from_line_scan(self.data,self.radon_chunk_size);
+          result = get_slope_from_line_scan(self.data,self.radon_chunk_size,@two_step_radon);
+          self.slopes = result.slopes;
+          self.time = result.time;
           self.update_values()
           self.update_plot()
           self.main()
@@ -36,8 +38,10 @@ classdef LineScanAnnalyzer < handle %& dynamicprops
           axInnerPos1 = self.panel.UIAxes.InnerPosition;
           axInnerPos2 = self.panel.UIAxes_2.InnerPosition;
           axInnerPos3 = self.panel.UIAxes2.InnerPosition;
-          [self.slopes,self.time,locations]=get_slope_from_line_scan(self.data,self.radon_chunk_size);
-          flux = get_flux(self.slopes,self.time,locations,self.dt,self.radon_chunk_size);
+          result =get_slope_from_line_scan(self.data,self.radon_chunk_size,@two_step_radon);
+          self.slopes = result.slopes;
+          self.time = result.time;
+          flux = get_flux(result,self.dt,self.radon_chunk_size);
           if self.use_physical_units
               self.slopes = self.slopes*self.dx/self.dt;
               self.time = self.time*self.dt;

@@ -1,7 +1,13 @@
 
 images = DataSimulator.generate_radon_test(10);
 
-plot_diagnostic(images{i})
+theta = 3*pi/4;
+[x1,y1]=pol2cart(theta,200);
+[x2,y2]=pol2cart(theta+pi,200);
+img = zeros(100,100);
+img = insertShape(img, 'Line', [x1+10, y1+10, x2+50, y2+50], 'LineWidth', 30);
+img = img(:,:,1);
+plot_diagnostic(img,size(img,2))
 
 for i = 8
     data_chunk = images{i};
