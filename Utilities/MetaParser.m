@@ -37,13 +37,17 @@ classdef MetaParser
            lineDuration = scan_field.duration;
        end
 
-       function line_scans = get_all_line_scans(RoiGroups)
+       function [line_scans,line_scan_start] = get_all_line_scans(RoiGroups)
            line_scans = [];
+           line_scan_start = [];
+           duration = 0;
            for roi = 1:numel(RoiGroups.imagingRoiGroup.rois)
                scan_field = RoiGroups.imagingRoiGroup.rois(roi).scanfields;
                if all(strcmp(scan_field.stimulusFunction,'scanimage.mroi.stimulusfunctions.line'))
                    line_scans = [line_scans scan_field];
+                   line_scan_start = [line_scan_start duration];
                end
+               duration = duration+scan_field.duration;
            end
 
        end

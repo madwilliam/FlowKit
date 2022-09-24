@@ -10,50 +10,51 @@ function pmtToTiff( pmt_files,meta_files, output_dir )
         total_pixels = SI.hScan2D.lineScanSamplesPerFrame;
         n_channels = numel(SI.hChannels.channelSave);
         sampleRate = SI.hScan2D.sampleRate;
-        line_scans = MetaParser.get_all_line_scans(RoiGroups);
+        [line_scans,line_scan_start] = MetaParser.get_all_line_scans(RoiGroups);
         nlines = numel(line_scans);
-        lineDuration = line_scans(1).duration;
-        line_scan_pixels=lineDuration*sampleRate;
-        image = load_image(pmt_path,total_pixels,n_channels,line_scan_pixels,meta_path);
         channels=SI.hChannels.channelSave;
+        pmt = FileHandler.load_pmt_file(pmt_path,total_pixels,n_channels,1);
         for linei = 1:nlines
             line = line_scans(linei);
+            scan_start = line_scan_start(linei)*sampleRate;
+            scan_end = scan_start+line.duration*sampleRate;
             [dx_um,dt_ms] = get_dxdt(SI,line);
+            image = load_image(pmt,scan_start,scan_end);
             if isnan(image)
                 break
             else
                 image=imadjust(image);
                 image=medfilt2(image);
                 [image,downsample_factor] = down_sample_pixels(image,dx_um);
+                if downsample_factor~=1
+                    dx_um = 0.15;
+                end
                 has_stimulus = stimulus_exists(image,channels,pmt_files,file_name);
                 save_name = append(file_name,'_roi_',num2str(linei));
                 tif_name = append(save_name,'.tif');
                 mat_name = append(save_name,'.mat');
                 imwrite(image,fullfile(output_dir,tif_name));
+                [stimulus,duration] = get_stimulus(image,channels,pmt_files,file_name,size(image,2));
+                duration_ms = duration*dt_ms;
                 save(fullfile(output_dir,mat_name),'SI','RoiGroups','has_stimulus'...
-                    ,'dx_um','dt_ms','downsample_factor')
+                    ,'dx_um','dt_ms','downsample_factor','channels','stimulus','duration_ms')
             end
         end
     end
 end
 
-function image = load_image(pmt_path,total_pixels,n_channels,line_scan_pixels,meta_path)
-    pmt = FileHandler.load_pmt_file(pmt_path,total_pixels,n_channels,1);
+function image = load_image(pmt,scan_start,scan_end)
     if numel(pmt)*2<(2^31)
-        if FileHandler.read_from_end(meta_path)
-            image=pmt(total_pixels-(line_scan_pixels*.95)+1:total_pixels-line_scan_pixels*.05,:);
-        else
-            image=pmt(line_scan_pixels*.05:line_scan_pixels*.95,:);
-        end
+        image=pmt(floor(scan_start*1.05):floor(scan_end*.95),:);
     else
+        disp('tiff is too big')
         image = NaN;
-        disp(' File too large');
     end
+
 end
 function [data,downsample_factor] = down_sample_pixels(data,dx_um)
-    size_factor = 1/dx_um;
-    if size_factor > 0.5
-        size_factor = 2/dx_um;
+    if dx_um < 0.1
+        size_factor = 0.15/dx_um;
         downsample_factor = ceil(size_factor);
         data = imresize(data,'Scale',[1/downsample_factor,1]);
     else

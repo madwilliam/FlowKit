@@ -1,5 +1,5 @@
 function result=get_slope_from_line_scan(data,windowsize,radon_function)
-    stepsize=.25*windowsize;
+    stepsize=floor(.25*windowsize);
     nsample = size(data,2);
     nsteps=floor(nsample/stepsize)-3;
     result.locations=zeros(nsteps,1);
