@@ -1,5 +1,5 @@
 function result=get_slope_from_line_scan(data,windowsize,radon_function)
-    stepsize=.25*windowsize;
+    stepsize=floor(.25*windowsize);
     nsample = size(data,2);
     nsteps=floor(nsample/stepsize)-3;
     result.locations=zeros(nsteps,1);
@@ -10,7 +10,7 @@ function result=get_slope_from_line_scan(data,windowsize,radon_function)
     for k=1:nsteps
         result.time(k)=1+(k-1)*stepsize+windowsize/2;
         data_chunk=data(:,1+(k-1)*stepsize:(k-1)*stepsize+windowsize);
-        [data_chunk,result.downsample_factor] = preprocess_data(data_chunk,windowsize);
+        data_chunk = preprocess_data(data_chunk);
         [theta,radius,~] = radon_function(data_chunk,1:179);
         [result.slopes(k),result.locations(k),~]= get_slope_and_location(radius,theta,size(data_chunk));
         result.locations(k) = result.locations(k)+1+(k-1)*stepsize;

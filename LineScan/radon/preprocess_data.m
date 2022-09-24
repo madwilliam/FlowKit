@@ -1,21 +1,9 @@
-function [data,downsample_factor] = preprocess_data(data,windowsize)
-    [data,downsample_factor] = down_sample_pixels(data,windowsize);
+function data = preprocess_data(data)
     data = data-mean(data,'all');
     mean_data = mean(data,2);
     mean_data = repmat(mean_data,1,size(data,2));
     mean_data = cast(mean_data,class(data));
     data = data-mean_data;
-end
-
-function [data,downsample_factor] = down_sample_pixels(data,windowsize)
-    npixel=size(data,1);
-    size_factor = npixel/windowsize;
-    if size_factor> 1.5
-        downsample_factor = ceil(size_factor);
-        data = data(1:downsample_factor:end,:);
-    else
-        downsample_factor=1;
-    end
 end
 
 function data = fancy_processing(data)%,ax4,ax5)
