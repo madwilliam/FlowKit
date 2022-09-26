@@ -70,30 +70,20 @@ classdef FileHandler
            end
        end
 
-       function stimulus = load_stimulus(pmt_files,file_name)
-           pmt_file = FileHandler.get_file(pmt_files,file_name);
-           fid=fopen(pmt_file,'r');
-           M=fread(fid,'int16=>int16');
-           stimulus=M(1:2:end);
-           stimulus=int16(stimulus);
-       end
-
        function pmt = load_pmt_file(file_name,npixels,nchannels,channeli)
            file_info=dir(file_name);
            size = [npixels,(file_info.bytes/(2*npixels))];
            fid=fopen(file_name, 'r' );
            fseek(fid,(channeli-1)*2,-1);
            pmt=fread(fid,size,'*int16',(nchannels-1)*2);
-           pmt=im2uint16(pmt);
        end
 
-       function pmt = load_pmt_file_full(pmt_file,npixels,channels)
-           file_info=dir(pmt_file);
-           size = [npixels,(file_info.bytes/(2*npixels))];
-           A=fopen(pmt_file, 'r' );
-           pmt=fread(A,size,'*int16');
-           pmt = pmt(1:channels-1:end);
-           pmt=im2uint16(pmt);
+      function stimulus = load_stimulus(pmt_files,file_name)
+           pmt_file = FileHandler.get_file(pmt_files,file_name);
+           fid=fopen(pmt_file,'r');
+           M=fread(fid,'int16=>int16');
+           stimulus=M(1:2:end);
+           stimulus=int16(stimulus);
        end
 
        function answer = read_from_end(meta_path)
