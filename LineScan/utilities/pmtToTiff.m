@@ -17,15 +17,16 @@ function pmtToTiff( pmt_files,meta_files, output_dir )
         pmt = FileHandler.load_pmt_file(pmt_path,total_pixels,n_channels,1);
         for linei = 1:nlines
             line = line_scans(linei);
-            scan_start = line_scan_start(linei)*sampleRate+1;
-            scan_end = scan_start+line.duration*sampleRate-1;
+            scan_start = floor(line_scan_start(linei)*sampleRate)+1;
+            scan_end = floor((line_scan_start(linei)+line.duration)*sampleRate)-1;
+            offset = floor(line.duration*sampleRate*0.05);
             [dx_um,dt_ms] = get_dxdt(SI,line);
-            image =  pmt(floor(scan_start*1.05):floor(scan_end*.95),:);
+            image =  pmt(scan_start+offset:scan_end-offset,:);
             if isnan(image)
                 break
             else
-%                 image=imadjust(image);
-%                 image=medfilt2(image);
+                image=imadjust(image);
+                image=medfilt2(image);
                 [image,downsample_factor] = down_sample_pixels(image,dx_um);
                 if downsample_factor~=1
                     dx_um = 0.15;

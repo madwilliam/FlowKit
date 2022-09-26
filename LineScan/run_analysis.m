@@ -1,4 +1,4 @@
-raw_data_path = 'Y:\Data and Analysis\Data\Two Photon Directory';
+raw_data_path = 'Y:\Zhongkai\CBF Data';
 out_put_dir='C:\Users\dklab\Desktop\test';
 
 meta_files = FileHandler.get_meta_files(raw_data_path);
