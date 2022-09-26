@@ -16,8 +16,8 @@ function pmtToTiff( pmt_files,meta_files, output_dir )
         pmt = FileHandler.load_pmt_file(pmt_path,total_pixels,n_channels,1);
         for linei = 1:nlines
             line = line_scans(linei);
-            scan_start = line_scan_start(linei)*sampleRate;
-            scan_end = scan_start+line.duration*sampleRate;
+            scan_start = line_scan_start(linei)*sampleRate+1;
+            scan_end = scan_start+line.duration*sampleRate-1;
             [dx_um,dt_ms] = get_dxdt(SI,line);
             image = load_image(pmt,scan_start,scan_end);
             if isnan(image)
