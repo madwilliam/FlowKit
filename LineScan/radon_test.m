@@ -1,10 +1,11 @@
 %%
-path = 'Y:\Test\Test\';
+path = 'Y:\Data and Analysis\Analysis\Two Photon Analysis\AutorunOutput\Test\';
 files = dir([path '*.tif']);
-filei = [path,files(3).name];
+filei = [path,files(1).name];
 t = Tiff(filei,'r');
 all_data = read(t);
 imageData = imcomplement(all_data(1:end,:));
+imagesc(imageData(:,1:8000))
 %%
 path = 'Y:\Test\Test\';
 file_name = 'PACK-050522-NoCut_05-17-22_Vessel1_CBF_00004';

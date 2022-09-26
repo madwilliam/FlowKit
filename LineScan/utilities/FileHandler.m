@@ -47,22 +47,23 @@ classdef FileHandler
                    end
                end
            end
+           file = fullfile(file.folder, file.name);
        end
 
-       function [shared_experiment,meta_no_tif,tif_no_meta] = get_experiments_with_meta_and_tif(meta_files,tif_files)
-           meta_names = FileHandler.get_names(meta_files);
-           tif_names = FileHandler.get_names(tif_files);
-           shared_experiment = intersect(meta_names,tif_names);
-           meta_no_tif = setdiff(meta_names,tif_names);
-           tif_no_meta = setdiff(tif_names,meta_names);
+       function [shared_experiment,type1_no_2,type2_no_1] = get_shared_experiments(filetype1,filetype2)
+           names1 = FileHandler.get_names(filetype1);
+           names2 = FileHandler.get_names(filetype2);
+           shared_experiment = intersect(names1,names2);
+           type1_no_2 = setdiff(names1,names2);
+           type2_no_1 = setdiff(names2,names1);
        end
 
        function [SI,RoiGroups] = load_meta_data(meta_file)
-           [SI,RoiGroups] = parse_scan_image_meta(fullfile(meta_file.folder, meta_file.name));
+           [SI,RoiGroups] = parse_scan_image_meta(meta_file);
        end
 
        function image = load_image_data(tif_file)
-           t = Tiff(fullfile(tif_file.folder, tif_file.name),'r');
+           t = Tiff(tif_file,'r');
            image = read(t);
            if size(image,1)>size(image,2)
                image=image';
@@ -71,7 +72,7 @@ classdef FileHandler
 
        function stimulus = load_stimulus(pmt_files,file_name)
            pmt_file = FileHandler.get_file(pmt_files,file_name);
-           fid=fopen([pmt_file.folder '\' pmt_file.name],'r');
+           fid=fopen(pmt_file,'r');
            M=fread(fid,'int16=>int16');
            stimulus=M(1:2:end);
            stimulus=int16(stimulus);
@@ -87,10 +88,9 @@ classdef FileHandler
        end
 
        function pmt = load_pmt_file_full(pmt_file,npixels,channels)
-           file_name = fullfile(pmt_file.folder, pmt_file.name);
-           file_info=dir(file_name);
+           file_info=dir(pmt_file);
            size = [npixels,(file_info.bytes/(2*npixels))];
-           A=fopen(file_name, 'r' );
+           A=fopen(pmt_file, 'r' );
            pmt=fread(A,size,'*int16');
            pmt = pmt(1:channels-1:end);
            pmt=im2uint16(pmt);
