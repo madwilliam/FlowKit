@@ -1,4 +1,11 @@
 function pmtToTiff( pmt_files,meta_files, output_dir )
+    
+    %Filter for sizes
+    
+    pmt_sizes=[];    
+    pmt_sizes = [pmt_sizes, pmt_files.bytes].';
+    pmt_files = pmt_files( pmt_sizes > 20e3 ) ;
+
     [shared_experiment,~,~] = FileHandler.get_shared_experiments(pmt_files,meta_files);
     nfiles = numel(shared_experiment);
     for filei = 1:nfiles
@@ -19,12 +26,12 @@ function pmtToTiff( pmt_files,meta_files, output_dir )
             scan_start = line_scan_start(linei)*sampleRate+1;
             scan_end = scan_start+line.duration*sampleRate-1;
             [dx_um,dt_ms] = get_dxdt(SI,line);
-            image = load_image(pmt,scan_start,scan_end);
+            image =  pmt(floor(scan_start*1.05):floor(scan_end*.95),:);
             if isnan(image)
                 break
             else
-                image=imadjust(image);
-                image=medfilt2(image);
+%                 image=imadjust(image);
+%                 image=medfilt2(image);
                 [image,downsample_factor] = down_sample_pixels(image,dx_um);
                 if downsample_factor~=1
                     dx_um = 0.15;
@@ -42,16 +49,17 @@ function pmtToTiff( pmt_files,meta_files, output_dir )
         end
     end
 end
-
-function image = load_image(pmt,scan_start,scan_end)
-    if numel(pmt)*2<(2^31)
-        image=pmt(floor(scan_start*1.05):floor(scan_end*.95),:);
-    else
-        disp('tiff is too big')
-        image = NaN;
-    end
-
-end
+%% NOT CALLED 09-26-22
+% function image = load_image(pmt,scan_start,scan_end)
+%     if numel(pmt)*2<(2^31)
+%         image=pmt(floor(scan_start*1.05):floor(scan_end*.95),:);
+%     else
+%         disp('tiff is too big')
+%         image = NaN;
+%     end
+% 
+% end
+%%
 function [data,downsample_factor] = down_sample_pixels(data,dx_um)
     if dx_um < 0.1
         size_factor = 0.15/dx_um;
