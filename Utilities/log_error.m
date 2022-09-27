@@ -5,6 +5,6 @@ function log_error(file_name,ME,output_dir)
     else
         fid = fopen(log_file, 'a+');
     end
-    fprintf(fid, '======================================\n%s\n%s\n%s\n', file_name,ME.identifier,ME.message);
+    fprintf(fid, '======================================\n%s\n%s\n%s\n', [file_name,'    ',datestr(datetime('now'))],ME.identifier,ME.message);
     fclose(fid)
 end
