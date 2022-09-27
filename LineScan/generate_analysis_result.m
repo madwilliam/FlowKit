@@ -8,7 +8,7 @@ function generate_analysis_result(out_dir)
             file_name = FileHandler.strip_extensions(matfile.name);
             analyze_file(file_name,tif_files,mat_files)
         catch ME
-            log_error(file_name,ME,output_dir)
+            log_error(file_name,ME,out_dir)
         end
     end
 end
