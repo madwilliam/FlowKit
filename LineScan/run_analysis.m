@@ -1,4 +1,4 @@
-raw_data_path = 'Y:\Zhongkai\CBF Data';
+raw_data_path = 'Y:\Zhongkai\';
 out_put_dir='C:\Users\dklab\Desktop\test';
 
 meta_files = FileHandler.get_meta_files(raw_data_path);

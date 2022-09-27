@@ -25,8 +25,8 @@ function pmtToTiff( pmt_files,meta_files, output_dir )
             if isnan(image)
                 break
             else
-                image=imadjust(image);
-                image=medfilt2(image);
+%                 image=imadjust(image);
+%                 image=medfilt2(image);
                 [image,downsample_factor] = down_sample_pixels(image,dx_um);
                 if downsample_factor~=1
                     dx_um = 0.15;
