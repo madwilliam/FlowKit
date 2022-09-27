@@ -1,7 +1,6 @@
 function generate_analysis_result(out_dir)
     tif_files = FileHandler.get_tif_files(out_dir);
     mat_files = FileHandler.get_mat_files(out_dir);
-    assert(length(tif_files)==length(mat_files))
     nfiles = numel(mat_files);
     for i = 1:nfiles 
         matfile = mat_files(i);
