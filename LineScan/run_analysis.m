@@ -1,5 +1,5 @@
 raw_data_path = 'Y:\Zhongkai\CBF Data';
-out_put_dir='Y:\Zhongkai\outpath';
+out_put_dir='Y:\Zhongkai\Zhongkai Errors\Generate_analysis_results Errors';
 
 meta_files = FileHandler.get_meta_files(raw_data_path);
 pmt_files = FileHandler.get_pmt_files(raw_data_path);
