@@ -19,7 +19,7 @@ parfor tiffi=1:size( tif_names, 1 )
                 data=data.';
             end
             data=double(data);
-            [raw_slopes,~]=get_slope_from_line_scan(imcomplement(data),100);
+            [raw_slopes,~]=get_slope_from_line_scan(data,100);
             v = raw_slopes*dx/dt;
             vOutInf=v.';
             vOutInf(vOutInf==Inf)=max(vOutInf(vOutInf~=Inf));

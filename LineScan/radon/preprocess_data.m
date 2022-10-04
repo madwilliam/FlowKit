@@ -1,4 +1,5 @@
 function data = preprocess_data(data)
+    data = imcomplement(data);
     data = data-mean(data,'all');
     mean_data = mean(data,2);
     mean_data = repmat(mean_data,1,size(data,2));

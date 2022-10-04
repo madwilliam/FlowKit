@@ -19,7 +19,7 @@ for tiffi=1:size( tif_names, 1 )
                 data=data.';
             end
             data=double(data);
-            [raw_slopes,time,locations]=get_slope_from_line_scan(imcomplement(data),100);
+            [raw_slopes,time,locations]=get_slope_from_line_scan(data,100);
             flux = get_flux(raw_slopes,time,locations,dt);
             speed = raw_slopes*dx/dt;
             flux = flux.';

@@ -18,7 +18,6 @@ while true
     raw_data = get_raw_data();
     data_chunk = reshape(raw_data,nline,[]);
     data_chunk = data_chunk(data_range(1):data_range(2),:);
-    data_chunk = imcomplement(data_chunk);
     try
         [slopes,time]=get_slope_from_line_scan(data_chunk,radon_chunk_size);
         n_new_points = length(slopes);

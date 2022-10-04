@@ -65,7 +65,6 @@ uvar = cell(segn,imgsegsz(3));
 
 data_chunk = imageData(:,1:size(imageData,1));
 data_chunk = imageData(:,1:800);
-% data_chunk = imcomplement(data_chunk);
 mean_data = mean(data_chunk,2);
 mean_data = repmat(mean_data,1,size(data_chunk,2));
 data_chunk = data_chunk-uint16(mean_data);

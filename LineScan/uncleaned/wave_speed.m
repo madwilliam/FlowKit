@@ -5,7 +5,6 @@ filei = [path,files(1).name];
 t = Tiff(filei,'r');
 all_data = read(t);
 imageData = all_data(150:end,1:8000); 
-imageData = imcomplement(imageData);
 
 %%
 raw_data = double(imageData(:,1:8000));

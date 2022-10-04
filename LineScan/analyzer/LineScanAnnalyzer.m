@@ -41,17 +41,22 @@ classdef LineScanAnnalyzer < handle %& dynamicprops
           result =get_slope_from_line_scan(self.data,self.radon_chunk_size,@two_step_radon);
           self.slopes = result.slopes;
           self.time = result.time;
-          flux = get_flux(result,self.dt,self.radon_chunk_size);
+          flux = get_flux(result,self.dt);
           if self.use_physical_units
               self.slopes = self.slopes*self.dx/self.dt;
               self.time = self.time*self.dt;
           end
           hold(self.panel.UIAxes_2,'off')
+          hold(self.panel.UIAxes,'on')
           imagesc(self.panel.UIAxes,self.data,'XData', [0 0], 'YData', [0 0])
+          Plotter.plot_stripes_on_image(self.panel.UIAxes,result.locations,result.slopes,self.n_pixel,self.n_sample)
+          hold(self.panel.UIAxes,'off')
           stepsize = 0.25*self.radon_chunk_size;
           self.k = self.panel.ChunkToExamineEditField.Value;
           chunk_start = 1+(self.k-1)*stepsize;
           chunk_end = (self.k-1)*stepsize+self.radon_chunk_size;
+          self.panel.UIAxes.Title.String = append('Line Scan Image',' chunk start: '...
+              ,num2str(chunk_start),'chunk end: ',num2str(chunk_end));
           line(self.panel.UIAxes,[chunk_start,chunk_start],[-1,self.n_pixel+1],'color','r')
           line(self.panel.UIAxes,[chunk_end,chunk_end],[-1,self.n_pixel+1],'color','r')
           plot(self.panel.UIAxes_2,self.time,self.slopes)

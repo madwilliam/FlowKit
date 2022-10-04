@@ -61,7 +61,6 @@ classdef LineScanPanel < handle %& dynamicprops
             self.data_chunk = reshape(self.raw_data,self.n_pixel,[]);
             self.n_sample = size(self.data_chunk,2);
             self.data_chunk = self.data_chunk(self.data_range(1):self.data_range(2),:);
-            self.data_chunk = imcomplement(self.data_chunk);
             [slopes,time]=get_slope_from_line_scan(self.data_chunk,self.radon_chunk_size);
             self.update_data(slopes,time)
             self.update_plot()

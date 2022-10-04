@@ -4,7 +4,6 @@ files = dir([path '*.tif']);
 filei = [path,files(1).name];
 t = Tiff(filei,'r');
 all_data = read(t);
-imageData = imcomplement(all_data(1:end,:));
 imagesc(imageData(:,1:8000))
 %%
 path = 'Y:\Test\Test\';
@@ -18,8 +17,8 @@ meta_file = FileHandler.get_file(meta_files,file_name);
 %%
 anna = LineScanAnnalyzer(imageData(1:end,1:8000),100);
 %%
-[raw_slopes,time,locations,rval]=get_slope_from_line_scan(imcomplement(imageData),100);
-Plotter.plot_detected_stripes(imcomplement(imageData),location_per_stripe,slopes_per_stripe,time_per_stripe)
+[raw_slopes,time,locations,rval]=get_slope_from_line_scan(imageData,100);
+Plotter.plot_detected_stripes(imageData,location_per_stripe,slopes_per_stripe,time_per_stripe)
 %%
 path = '/home/zhw272/data/mtar.mat';
 image = load(path).out;
@@ -34,8 +33,8 @@ figure
 ax1 = subplot(311);
 ax2 = subplot(312);
 ax3 = subplot(313);
-img = imcomplement(imageData);
-img = img - mean(imcomplement(imageData),'all');
+img = imageData;
+img = img - mean(imageData,'all');
 imagesc(ax1,img)
 plot(ax2,time,raw_slopes-marked_slopes)
 plot(ax3,time,raw_slopes_old-marked_slopes)
