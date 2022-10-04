@@ -6,9 +6,6 @@ function generate_analysis_result(out_dir)
         try
             matfile = mat_files(i);
             file_name = FileHandler.strip_extensions(matfile.name);
-            if file_name == 'PACK-050522-NoCut_05-19-22_00004_roi_1'
-                disp('ok')
-            end
             analyze_file(file_name,tif_files,mat_files);
         catch ME
             log_error(file_name,ME,out_dir);
@@ -17,7 +14,7 @@ function generate_analysis_result(out_dir)
 end
 
 function analyze_file(file_name,tif_files,mat_files)
-    disp(append('working on ',file_name))
+    disp(append('working on ',file_name));
     mat_path = FileHandler.get_file(mat_files,file_name);
     load(mat_path,'has_stimulus','dx_um','dt_ms');
     tif_path = FileHandler.get_file(tif_files,file_name);
