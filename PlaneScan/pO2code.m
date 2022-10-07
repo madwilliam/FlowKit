@@ -21,16 +21,24 @@ PO2Plotter.compare_average_and_line_fit(O2Ptime(idx_start:end),mean_per_line(:,i
 %%
 PO2Plotter.plot_fit_to_one_frame(framei,linei,O2Ptime,allpo2_data,idx_start,parameters)
 PO2Plotter.plot_fit_for_all_frames_from_one_line(idx_start,O2Ptime,line_fit,linei)
-PO2Plotter.plot_tau_across_frames_for_each_line(parameters)
+PO2Plotter.plot_tau_across_frames_for_each_line(parameters,5)
 %%
 plot(squeeze(mean(allpo2_data(1:10,5,:))))
-
+[nframes,nchannels,~] = size(allpo2_data);
 windowsize = 10;
 nwindows = nframes-windowsize;
+averaged_data = zeros(nwindows,size(allpo2_data,2),size(allpo2_data,3));
 for channeli = 1:nchannels
     for windowi =1:nwindows
-        windowstart = (windowi-1)*windowsize+1;
-        windowend = windowi*windowsize;
-        mean_data = squeeze(mean(allpo2_data(windowstart:windowend,channeli,:)));
+        windowstart = windowi;
+        windowend = windowi+windowsize;
+        averaged_data(windowi,channeli,:) = squeeze(mean(allpo2_data(windowstart:windowend,channeli,:)));
     end
 end
+%%
+parpool('threads')
+[parameters,line_fit] = fit_every_frame(O2Ptime,averaged_data,idx_start);
+framei = 200;
+linei = 5;
+PO2Plotter.plot_fit_to_one_frame(framei,linei,O2Ptime,averaged_data,idx_start,parameters)
+PO2Plotter.plot_tau_across_frames_for_each_line(parameters,3)

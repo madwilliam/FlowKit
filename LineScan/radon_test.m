@@ -1,5 +1,5 @@
 %%
-path = 'Y:\Data and Analysis\Analysis\Two Photon Analysis\AutorunOutput\Test\';
+path = '/net/dk-server/bholloway/Zhongkai/Tifs and Mats/';
 files = dir([path '*.tif']);
 filei = [path,files(1).name];
 t = Tiff(filei,'r');

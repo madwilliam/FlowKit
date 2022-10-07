@@ -1,4 +1,4 @@
-function pmtToTiff( pmt_files,meta_files, output_dir )
+function update_start_and_end_time( pmt_files,meta_files, output_dir )
     pmt_files = filter_small_files(pmt_files);
     [shared_experiment,~,~] = FileHandler.get_shared_experiments(pmt_files,meta_files);
     nfiles = numel(shared_experiment);
@@ -46,8 +46,7 @@ function crop_tiff(file_name,pmt_files,meta_files, output_dir)
                 mat_name = append(save_name,'.mat');
                 image = im2uint16(image);
                 imwrite(image,fullfile(output_dir,tif_name));
-                save(fullfile(output_dir,mat_name),'SI','RoiGroups','has_stimulus'...
-                    ,'dx_um','dt_ms','downsample_factor','channels','start_time','end_time')
+                save(fullfile(output_dir,mat_name),'start_time','end_time')
             end
         end
     end

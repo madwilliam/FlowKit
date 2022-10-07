@@ -42,13 +42,13 @@ classdef PO2Plotter
             colororder(summer(size(lines,2)))
        end
 
-       function plot_tau_across_frames_for_each_line(parameters)
+       function plot_tau_across_frames_for_each_line(parameters,spacing)
             figure
             all_tau = [];
             nlines = size(parameters,2);
             for linei = 1:nlines
                 ps = parameters(:,linei);
-                taus = cellfun(@(element) element(2), ps)+linei*10;
+                taus = cellfun(@(element) element(2), ps)+linei*spacing;
                 all_tau = [all_tau taus];
             end
             plot(all_tau,'r')

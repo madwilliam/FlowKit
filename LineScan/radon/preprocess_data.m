@@ -4,7 +4,7 @@ function data = preprocess_data(data)
     mean_data = mean(data,2);
     mean_data = repmat(mean_data,1,size(data,2));
     mean_data = cast(mean_data,class(data));
-    data = data-mean_data;
+    data = data- mean_data;
 end
 
 function data = fancy_processing(data)%,ax4,ax5)
