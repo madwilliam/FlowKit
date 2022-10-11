@@ -138,7 +138,10 @@ classdef Plotter
                1/down_sampling_factor]);
        end
        
-       function plot_with_window_size(result,start_time,end_time,tif_path,window_size)
+       function plot_with_window_size(result,start_time,end_time,tif_path,window_size,title)
+           if ~exist('title','var')
+                title = '';
+           end
            nstimulus = numel(start_time);
            image = FileHandler.load_image_data(tif_path);
            down_sampling_factor = 3;
@@ -154,7 +157,7 @@ classdef Plotter
                else
                    [all_slopes,all_locations] = Plotter.recalculate_slope_and_location(stimulus_image,window_size,down_sampling_factor,chunk_length);
                end
-               Plotter.plot_strips(imagers,all_locations,all_slopes,start_timei,end_timei,chunk_offset,chunk_length,down_sampling_factor)
+               Plotter.plot_strips(imagers,all_locations,all_slopes,start_timei,end_timei,chunk_offset,chunk_length,down_sampling_factor,true,title)
            end
        end
 
@@ -179,9 +182,12 @@ classdef Plotter
             end
        end
 
-       function plot_strips(image,locations,slopes,start_timei,end_timei,chunk_offset,chunk_length,down_sampling_factor,show_plot)
+       function plot_strips(image,locations,slopes,start_timei,end_timei,chunk_offset,chunk_length,down_sampling_factor,show_plot,title)
            if ~exist('show_plot','var')
                 show_plot = true;
+           end
+           if ~exist('title','var')
+                title = '';
            end
            stimulus_chunk_start = start_timei-chunk_offset;
            fig_chunk_start = floor((start_timei-stimulus_chunk_start)/down_sampling_factor);
@@ -192,6 +198,9 @@ classdef Plotter
                f = figure('Visible','Off');
            end
            [axes, ~] = tight_subplot(10,1,[.01 .01],[.01 .01],[.01 .01]);
+           set(get(axes(end), 'title'), 'string', title)
+           set(get(axes(end), 'title'), 'FontSize', 18)
+           set(get(axes(end), 'title'), 'Color', [0,0,0])
            pointer = 0;
            for i =1:10
                hold(axes(i),'on')

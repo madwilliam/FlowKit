@@ -70,6 +70,12 @@ classdef FileHandler
            end
        end
 
+       function [height,width] = get_image_size(tif_file)
+            info = imfinfo(tif_file);
+            height = info.Height;
+            width = info.Width;
+       end
+
        function pmt = load_pmt_file(file_name,npixels,nchannels,channeli)
            file_info=dir(file_name);
            size = [npixels,(file_info.bytes/(2*npixels))];

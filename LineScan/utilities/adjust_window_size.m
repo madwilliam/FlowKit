@@ -14,14 +14,20 @@ function adjust_window_size(out_dir)
             tif_path = FileHandler.get_file(tif_files,file_name);
            window_size = nan;
            load(mat_path,'result','start_time','end_time','dt_ms','dx_um');
+           [n_pixel,~] = FileHandler.get_image_size(tif_path);
            while true
                if isnan(window_size)
                    disp(['showing result with window size = ' num2str(result.windowsize*dt_ms) ...
                        ' ms, ' num2str(result.windowsize) ' sample.  Sample Rate:' num2str(1000/(result.windowsize*dt_ms))])
-                   disp(['size: ' num2str(result.windowsize)])
+                   disp(['scan path: ' num2str(n_pixel*dx_um) ' um ' num2str(n_pixel) ' pixels'])
+                   figure_info = ['window size = ' num2str(result.windowsize*dt_ms) ' ms, '  ...
+                       num2str(result.windowsize) ' sample.'];
                elseif window_size~=-1
                    disp(['showing result with window size = ' num2str(window_size*dt_ms) ' ms, '  ...
                        num2str(window_size) ' sample.  Sample Rate:' num2str(1000/(window_size*dt_ms))])
+                   disp(['scan path: ' num2str(n_pixel*dx_um) ' um ' num2str(n_pixel) ' pixels'])
+                   figure_info = ['window size = ' num2str(window_size*dt_ms) ' ms, '  ...
+                       num2str(window_size) ' sample.'];
                end
                switch window_size
                    case 0
@@ -40,12 +46,12 @@ function adjust_window_size(out_dir)
                            task = createTask(job,@analyze_file,0,{file_name,tif_files,mat_files,last_window});
                            tasks = [tasks,task];
                            submit(job);
-                           disp(append('file reanalyzed with window size: ', num2str(last_window)))
-                           close(gcf)
+                           disp(append('file reanalyzed with window size: ', num2str(figure_info)))
+%                            close(gcf)
                            break
                        end
                    otherwise
-                       Plotter.plot_with_window_size(result,start_time,end_time,tif_path,window_size)
+                       Plotter.plot_with_window_size(result,start_time,end_time,tif_path,window_size,figure_info)
                        pause(0.01)
                        last_window = window_size;
                        window_size = input(['Enter window size to try, ' ...
