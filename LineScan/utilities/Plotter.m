@@ -63,11 +63,11 @@ classdef Plotter
             ylim(ax2,[-5,5])
        end
        function save_flow_speed_around_stimulation(mat_path,tif_path,save_path)
-           function save_figure(f,stimulationi)
-               set(f, 'Visible', 'off');
-               H = getframe(f);
+           function save_figure(stimulationi)
+               set(gcf, 'Visible', 'off');
+               H = getframe(gcf);
                imwrite(H.cdata, append(save_path,'_stimulation',num2str(stimulationi),'.png'));
-               close(f)
+               close(gcf)
            end
            Plotter.show_flow_speed_around_stimulation(mat_path,tif_path,@save_figure)
        end
@@ -85,6 +85,9 @@ classdef Plotter
            down_sampling_factor = 3;
            for stimulationi = 1:nstimulus
                f = figure;
+               if show_plot==false
+                   set(gcf, 'Visible', 'off');
+               end
                start_timei = start_time(stimulationi);
                end_timei = end_time(stimulationi);
                chunk_offset = 15000;
@@ -93,7 +96,7 @@ classdef Plotter
                Plotter.plot_strips(imagers,all_locations,all_slopes,start_timei,...
                    end_timei,chunk_offset,chunk_length,down_sampling_factor,show_plot)
                if isa(save_function,'function_handle')
-                   save_function(f,stimulationi);
+                   save_function(stimulationi);
                end
            end
         end
