@@ -37,7 +37,7 @@ classdef Plotter
                 slope = slopes(linei);
                 intercept = n_pixel/2-slope .* loaction;
                 y=slopes(linei)*x+intercept;
-                plot(axis,x,y,'color','white','LineWidth',1.5)
+                plot(axis,x,y,'color','red','LineWidth',1.5)
             end
        end
 
@@ -64,10 +64,10 @@ classdef Plotter
        end
        function save_flow_speed_around_stimulation(mat_path,tif_path,save_path)
            function save_figure(stimulationi)
-               set(gcf,'position',[1,1,1621,1241])
-               set(gcf, 'Visible', 'off');
-               H = getframe(gcf);
-               imwrite(H.cdata, append(save_path,'_stimulation',num2str(stimulationi),'.png'));
+               rez = [5100 3900]; %set desired [horizontal vertical] resolution
+               set(gcf,'PaperPosition',[0 0 rez/100],'PaperUnits','inches'); %set paper size (does not affect display)
+               img = print(gcf,'-RGBImage','-r100');
+               imwrite(img, append(save_path,'_stimulation',num2str(stimulationi),'.png'));
                close(gcf)
            end
            Plotter.show_flow_speed_around_stimulation(mat_path,tif_path,@save_figure)
