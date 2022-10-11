@@ -15,5 +15,5 @@ adjust_window_size(out_dir)
 
 %% batch
 out_dir='/net/dk-server/bholloway/Zhongkai/Tifs and Mats';
-figure_dir = '/net/dk-server/bholloway/Zhongkai/flow_speed_around_stimulation';
+figure_dir = '/net/dk-server/bholloway/Zhongkai/new';
 batch_examine_result(out_dir,figure_dir)

@@ -84,6 +84,7 @@ classdef Plotter
            image = FileHandler.load_image_data(tif_path);
            down_sampling_factor = 3;
            for stimulationi = 1:nstimulus
+               f = figure;
                start_timei = start_time(stimulationi);
                end_timei = end_time(stimulationi);
                chunk_offset = 15000;

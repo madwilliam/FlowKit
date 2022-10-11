@@ -13,12 +13,15 @@ function adjust_window_size(out_dir)
             mat_path = FileHandler.get_file(mat_files,file_name);
             tif_path = FileHandler.get_file(tif_files,file_name);
            window_size = nan;
-           load(mat_path,'result','start_time','end_time');
+           load(mat_path,'result','start_time','end_time','dt_ms','dx_um');
            while true
                if isnan(window_size)
-                   disp(['showing result with window size = ' num2str(result.windowsize)])
+                   disp(['showing result with window size = ' num2str(result.windowsize*dt_ms) ...
+                       ' ms, ' num2str(result.windowsize) ' sample.  Sample Rate:' num2str(1000/(result.windowsize*dt_ms))])
+                   disp(['size: ' num2str(result.windowsize)])
                elseif window_size~=-1
-                   disp(['showing result with window size = ' num2str(window_size)])
+                   disp(['showing result with window size = ' num2str(window_size*dt_ms) ' ms, '  ...
+                       num2str(window_size) ' sample.  Sample Rate:' num2str(1000/(window_size*dt_ms))])
                end
                switch window_size
                    case 0

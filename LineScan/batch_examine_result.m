@@ -5,7 +5,7 @@ end
 tif_files = FileHandler.get_tif_files(out_dir);
 mat_files = FileHandler.get_mat_files(out_dir);
 nfiles = numel(mat_files);
-parfor filei = 1:nfiles
+for filei = 1:nfiles
     try
         file_name = FileHandler.strip_extensions(mat_files(filei).name);
         mat_path = FileHandler.get_file(mat_files,file_name);
