@@ -64,6 +64,7 @@ classdef Plotter
        end
        function save_flow_speed_around_stimulation(mat_path,tif_path,save_path)
            function save_figure(stimulationi)
+               set(gcf,'position',[1,1,1621,1241])
                set(gcf, 'Visible', 'off');
                H = getframe(gcf);
                imwrite(H.cdata, append(save_path,'_stimulation',num2str(stimulationi),'.png'));
