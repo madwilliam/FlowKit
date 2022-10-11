@@ -14,6 +14,6 @@ adjust_window_size(out_dir)
 
 
 %% batch
-analysis_dir='/net/dk-server/bholloway/Zhongkai/Tifs and Mats';
-png_dir = '/net/dk-server/bholloway/Zhongkai/new';
-batch_examine_result(analysis_dir,png_dir)
+out_dir='C:\Users\Montana\Documents\Server_Data and Analysis\AutorunOutput\';
+figure_dir = 'C:\Users\Montana\Documents\Server_Data and Analysis\bPs\';
+batch_examine_result(out_dir,figure_dir)
