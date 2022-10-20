@@ -1,5 +1,5 @@
 raw_data_path = '/net/dk-server/bholloway/Zhongkai/CBF Data';
-out_dir='/net/dk-server/bholloway/Zhongkai/duplicates';
+out_dir='/net/dk-server/bholloway/Zhongkai/FoG';
 parpool(16)
 meta_files = FileHandler.get_meta_files(raw_data_path);
 pmt_files = FileHandler.get_pmt_files(raw_data_path);

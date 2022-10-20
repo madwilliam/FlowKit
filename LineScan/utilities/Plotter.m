@@ -72,6 +72,17 @@ classdef Plotter
            end
            Plotter.show_flow_speed_around_stimulation(mat_path,tif_path,@save_figure)
        end
+
+       function save_flow_speed_around_stimulation_weka(mat_path,tif_path,weka_mat_path,save_path)
+           function save_figure(stimulationi)
+               rez = [5100 3900]; %set desired [horizontal vertical] resolution
+               set(gcf,'PaperPosition',[0 0 rez/100],'PaperUnits','inches'); %set paper size (does not affect display)
+               img = print(gcf,'-RGBImage','-r100');
+               imwrite(img, append(save_path,'_stimulation',num2str(stimulationi),'.png'));
+               close(gcf)
+           end
+           Plotter.show_flow_speed_around_stimulation_weka(mat_path,tif_path,weka_mat_path,@save_figure)
+       end
         
        function show_flow_speed_around_stimulation(mat_path,tif_path,save_function)
            if ~exist('save_function','var')
@@ -81,19 +92,34 @@ classdef Plotter
                show_plot = false;
            end
            load(mat_path,'result','start_time','end_time');
-           nstimulus = numel(start_time);
            image = FileHandler.load_image_data(tif_path);
+           Plotter.plot_stipes_for_all_stimulation(image,start_time,end_time,result,show_plot,save_function,@Plotter.get_plotting_information)
+       end
+
+       function show_flow_speed_around_stimulation_weka(mat_path,tif_path,weka_mat_path,save_function)
+           if ~exist('save_function','var')
+                save_function = nan;
+                show_plot = true;
+           else
+               show_plot = false;
+           end
+           load(mat_path,'start_time','end_time');
+           load(weka_mat_path,'stripe_statistics');
+           image = FileHandler.load_image_data(tif_path);
+           Plotter.plot_stipes_for_all_stimulation(image,start_time,end_time,stripe_statistics,show_plot,save_function,@Plotter.get_plotting_information_weka)
+        end
+        
+        function plot_stipes_for_all_stimulation(image,start_time,end_time,...
+                result,show_plot,save_function,get_image_slope_and_location)
            down_sampling_factor = 3;
+           chunk_offset = 15000;
+           chunk_length = 1000;
+           nstimulus = numel(start_time);
            for stimulationi = 1:nstimulus
-               f = figure;
-               if show_plot==false
-                   set(gcf, 'Visible', 'off');
-               end
                start_timei = start_time(stimulationi);
                end_timei = end_time(stimulationi);
-               chunk_offset = 15000;
-               chunk_length = 1000;
-               [imagers,all_slopes,all_locations] = Plotter.get_plotting_information(image,start_timei,end_timei,chunk_offset,chunk_length,result,down_sampling_factor);
+               [imagers,all_slopes,all_locations] = get_image_slope_and_location(image,...
+                   start_timei,end_timei,chunk_offset,chunk_length,result,down_sampling_factor);
                Plotter.plot_strips(imagers,all_locations,all_slopes,start_timei,...
                    end_timei,chunk_offset,chunk_length,down_sampling_factor,show_plot)
                if isa(save_function,'function_handle')
@@ -101,34 +127,66 @@ classdef Plotter
                end
            end
         end
-        
+
        function [imagers,all_slopes,all_locations] = get_plotting_information(image,...
                start_timei,end_timei,chunk_offset,chunk_length,result,down_sampling_factor)
             imagers = Plotter.get_donsampled_image(image,start_timei,end_timei,chunk_offset,down_sampling_factor);
-            [all_slopes,all_locations] = Plotter.parse_slopes_and_locations(chunk_length,result,down_sampling_factor,start_timei,end_timei,chunk_offset);
+            [all_slopes,all_locations] = Plotter.parse_slopes_and_locations_radon(chunk_length,result,down_sampling_factor,start_timei,end_timei,chunk_offset);
        end
-       function [all_slopes,all_locations] = parse_slopes_and_locations(chunk_length,result,down_sampling_factor,start_timei,end_timei,chunk_offset)
+       
+       function [imagers,all_slopes,all_locations] = get_plotting_information_weka(image,...
+               start_timei,end_timei,chunk_offset,chunk_length,result,down_sampling_factor)
+            imagers = Plotter.get_donsampled_image(image,start_timei,end_timei,chunk_offset,down_sampling_factor);
+            [all_slopes,all_locations] = Plotter.parse_slopes_and_locations_weka(chunk_length,result,down_sampling_factor,start_timei,end_timei,chunk_offset);
+       end
+
+       function [all_slopes,all_locations] = parse_slopes_and_locations(chunk_length,result,down_sampling_factor,...
+               start_timei,end_timei,chunk_offset,location_and_slope_function)
             stimulus_chunk_start = start_timei-chunk_offset;
             stimulus_chunk_end = end_timei+chunk_offset;
-            in_chunk = arrayfun(@(location) location> stimulus_chunk_start && ...
-               location<stimulus_chunk_end,result.locations);
             pointer = 0;
             all_slopes = cell(10);
             all_locations = cell(10);
             for i =1:10
                start_image = (i-1)*chunk_length+1;
                end_image = i*chunk_length;
-               start_speed = start_image*down_sampling_factor;
-               end_speed = end_image*down_sampling_factor;
-               in_stripe = arrayfun(@(location) location> start_speed && ...
-                   location<end_speed,result.locations(in_chunk)-stimulus_chunk_start);
-               locations = result.locations(in_chunk)-stimulus_chunk_start+1-pointer*down_sampling_factor;
-               locations = locations(in_stripe);
-               slopes = result.slopes(in_chunk);
-               all_slopes{i} = slopes (in_stripe);
-               all_locations{i} = locations/down_sampling_factor;
+               [locations,slopes] = location_and_slope_function(result,start_image,end_image,stimulus_chunk_start,stimulus_chunk_end,down_sampling_factor,pointer);
+               all_slopes{i} = slopes;
+               all_locations{i} = locations;
                pointer=pointer+chunk_length;
             end
+       end
+
+       function [all_slopes,all_locations] = parse_slopes_and_locations_radon(chunk_length,result,down_sampling_factor,start_timei,end_timei,chunk_offset)
+           [all_slopes,all_locations] = Plotter.parse_slopes_and_locations(chunk_length,result,down_sampling_factor,start_timei,end_timei,chunk_offset,@Plotter.get_location_and_slopes_radon);
+       end
+
+       function [all_slopes,all_locations] = parse_slopes_and_locations_weka(chunk_length,result,down_sampling_factor,start_timei,end_timei,chunk_offset)
+            [all_slopes,all_locations] = Plotter.parse_slopes_and_locations(chunk_length,result,down_sampling_factor,start_timei,end_timei,chunk_offset,@Plotter.get_location_and_slopes_weka);
+       end
+
+       function [locations,slopes] = get_location_and_slopes_radon(result,start_image,end_image,stimulus_chunk_start,stimulus_chunk_end,down_sampling_factor,pointer)
+           in_chunk = arrayfun(@(location) location> stimulus_chunk_start && ...
+               location<stimulus_chunk_end,result.locations);
+           start_speed = start_image*down_sampling_factor;
+           end_speed = end_image*down_sampling_factor;
+           in_stripe = arrayfun(@(location) location> start_speed && ...
+               location<end_speed,result.locations(in_chunk)-stimulus_chunk_start);
+           locations = result.locations(in_chunk)-stimulus_chunk_start+1-pointer*down_sampling_factor;
+           locations = locations(in_stripe);
+           slopes = result.slopes(in_chunk);
+           slopes = slopes (in_stripe);
+           locations = locations/down_sampling_factor;
+       end
+
+       function [locations,slopes] = get_location_and_slopes_weka(result,start_image,end_image,stimulus_chunk_start,stimulus_chunk_end,down_sampling_factor,pointer)
+           start_speed = start_image*down_sampling_factor+stimulus_chunk_start;
+           end_speed = end_image*down_sampling_factor+stimulus_chunk_start;
+           in_stripe = cellfun(@(stripe) stripe.location> start_speed && ...
+           stripe.location<end_speed,result);
+           result = result(in_stripe);
+           locations = floor((cellfun(@(stripe) stripe.location,result)-start_speed)/down_sampling_factor);
+           slopes = cellfun(@(stripe) stripe.slope,result);
        end
       
        function [imagers,stimulus_image] = get_donsampled_image(image,start_timei,end_timei,chunk_offset,down_sampling_factor)
@@ -154,7 +212,7 @@ classdef Plotter
                [imagers,stimulus_image] = Plotter.get_donsampled_image(image,...
                    start_timei,end_timei,chunk_offset,down_sampling_factor);
                if isnan(window_size)
-                   [all_slopes,all_locations] = Plotter.parse_slopes_and_locations(chunk_length,result,down_sampling_factor,start_timei,end_timei,chunk_offset);
+                   [all_slopes,all_locations] = Plotter.parse_slopes_and_locations_radon(chunk_length,result,down_sampling_factor,start_timei,end_timei,chunk_offset);
                else
                    [all_slopes,all_locations] = Plotter.recalculate_slope_and_location(stimulus_image,window_size,down_sampling_factor,chunk_length);
                end
@@ -215,6 +273,8 @@ classdef Plotter
                Plotter.plot_stimulus_start_and_stop(axes(i),fig_chunk_start,...
                fig_chunk_end,pointer,chunk_length,npixels,nframes);
                hold(axes(i),'off')
+               ylim(axes(i),[1,size(image_chunk,1)])
+               xlim(axes(i),[1,size(image_chunk,2)])
                pointer=pointer+chunk_length;
            end
        end

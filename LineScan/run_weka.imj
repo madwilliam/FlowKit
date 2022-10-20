@@ -1,0 +1,21 @@
+dir1 = getDirectory("Choose Source Directory ");
+dir2 = getDirectory("Choose Destination Directory ");
+list = getFileList(dir1);
+setBatchMode(true);
+
+for (i=0; i<list.length; i++) {
+    run("Trainable Weka Segmentation", "open="+dir1+list[i]);
+    wait(2000);
+    call("trainableSegmentation.Weka_Segmentation.loadClassifier", "/scratch/line_scan_ben/RBCs.model");
+    call("trainableSegmentation.Weka_Segmentation.getResult");
+    while(!isOpen("Classified image"))
+        {
+        wait(5000);
+        }
+    selectWindow("Classified image");
+    saveAs('tiff', dir2+list[i]);
+}
+%%
+
+
+
