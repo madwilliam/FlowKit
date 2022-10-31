@@ -5,10 +5,10 @@ mat_files = FileHandler.get_mat_files(mat_root);
 weka_mat_files = FileHandler.get_mat_files(weka_root);
 weka_tifs = FileHandler.get_tif_files(weka_root);
 file_name = 'Pack-050522-NoCut_05-17-22_Vessel-2_CBF_00002_roi_1';
-tif_path = FileHandler.get_file(tif_files,file_name);
-mat_path = FileHandler.get_file(mat_files,file_name);
-weka_mat_path = FileHandler.get_file(weka_mat_files,file_name);
-weka_tif_path = FileHandler.get_file(weka_tifs,file_name);
+tif_path = FileHandler.get_file_path(tif_files,file_name);
+mat_path = FileHandler.get_file_path(mat_files,file_name);
+weka_mat_path = FileHandler.get_file_path(weka_mat_files,file_name);
+weka_tif_path = FileHandler.get_file_path(weka_tifs,file_name);
 Plotter.show_flow_speed_around_stimulation_weka(mat_path,tif_path,weka_mat_path)
 
 %%

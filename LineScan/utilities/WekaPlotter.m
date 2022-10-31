@@ -1,6 +1,6 @@
 classdef WekaPlotter
    methods(Static)
-       function all_results = parse_result_by_stimulation(weka_root,mat_root)
+       function all_results = parse_result_by_stimulation(weka_root,mat_root,offset_seconds,window_size_seconds)
             weka_mat_files = FileHandler.get_mat_files(weka_root);
             mat_files = FileHandler.get_mat_files(mat_root);
             all_results = [];
@@ -8,57 +8,203 @@ classdef WekaPlotter
             for i=1:numel( weka_mat_files )
                 weka = weka_mat_files(i);
                 file_name = FileHandler.strip_extensions(weka.name);
-                mat_file = FileHandler.get_file(mat_files,file_name);
-                weka_mat_file = FileHandler.get_file(weka_mat_files,file_name);
+                mat_file = FileHandler.get_file_path(mat_files,file_name);
+                weka_mat_file = FileHandler.get_file_path(weka_mat_files,file_name);
                 mat = load( mat_file );
                 load(weka_mat_file,'stripe_statistics')
+                ispositive = cellfun(@(x) x.location>0 ,stripe_statistics);
+                stripe_statistics = stripe_statistics(ispositive);
                 locations = cellfun(@(x) x.location ,stripe_statistics);
                 speed_um_ms = cellfun(@(x) x.slope ,stripe_statistics)*mat.dx_um/mat.dt_ms;
+                time = locations*mat.dt_ms/1000;
+                [time,id] = sort(time);
+                speed_um_ms = speed_um_ms(id);
+                [standardized,ty] =  resample(speed_um_ms,time,resample_frequency);
+                filtered = medfilt1(standardized,4);
                 n_stimulus = numel( mat.start_time );  
                 for stimulusi=1:n_stimulus 
-                    [duration_ms,in_window,pre_stim,post_stim] = WekaPlotter.get_stim_window(mat,stimulusi,locations,stripe_statistics);
+                    [duration_ms,in_window,pre_stim,post_stim,pre_stim_standard,post_stim_standard,in_window_standard] ...
+                        = WekaPlotter.get_stim_window(mat,stimulusi,locations,...
+                        stripe_statistics,max(time),resample_frequency,...
+                        offset_seconds,window_size_seconds);
                     if sum(in_window) == 0
                         continue
                     end
-                    speedi = speed_um_ms(in_window);
-                    timei = (locations(in_window) - min(locations(in_window))+1)*mat.dt_ms;
-                    [timei,id] = sort(timei);
-                    speedi = speedi(id);
                     result = struct();
                     result.duration_ms = duration_ms;
                     result.file_name = [file_name '_stim_' num2str(stimulusi)];
-                    result.speed = speedi;
-                    result.time = timei/1000;
-                    result.mean_pre_stim = mean(speed_um_ms(pre_stim));
-                    result.mean_post_stim = mean(speed_um_ms(post_stim));
-                    result.filtered = medfilt1(speedi,100);
-                    result.standardized =  resample(result.filtered,result.time,resample_frequency);
+                    result.speed = speed_um_ms(in_window);
+                    result.time = time(in_window)-min(time(in_window));
+                    result.time_standard = ty(in_window_standard);
+                    result.speed_standard = filtered(in_window_standard);
+                    result.time_pre_stim_standard = ty(pre_stim_standard);
+                    result.speed_pre_stim = speed_um_ms(pre_stim);
+                    result.time_pre_stim = time(pre_stim)-min(time(pre_stim));
+                    result.time_post_stim_standard = ty(post_stim_standard);
+                    result.speed_post_stim = speed_um_ms(post_stim);
+                    result.time_post_stim = time(post_stim)-min(time(post_stim));
+                    result.filtered_speed_pre_stim = filtered(pre_stim_standard);
+                    result.filtered_speed_post_stim = filtered(post_stim_standard);
+                    sign_change = sign(mean(result.filtered_speed_pre_stim));
+                    result.mean_pre_stim = mean(result.filtered_speed_pre_stim)*sign_change;
+                    result.mean_post_stim = mean(result.filtered_speed_post_stim)*sign_change;
+                    result.delta_mean = result.mean_pre_stim-result.mean_post_stim;
+                    result.area_under_the_curve_pre_stim = sum(result.filtered_speed_pre_stim)*sign_change;
+                    result.area_under_the_curve_post_stim = sum(result.filtered_speed_post_stim)*sign_change;
+                    result.delta_area = result.area_under_the_curve_post_stim-result.area_under_the_curve_pre_stim;
+                    result.peak_pre_stim = max(result.filtered_speed_pre_stim*sign_change);
+                    result.peak_post_stim = max(result.filtered_speed_post_stim*sign_change);
+                    result.sign_change = sign_change;
+                    result.delta_peak = result.peak_post_stim-result.peak_pre_stim;
                     all_results = [all_results result];
                 end
             end
        end
+
+       function timei = location_to_time(locations,mat)
+           timei = (locations - min(locations)+1)*mat.dt_ms/1000;
+       end
     
        function all_file_info = organize_file_information(stimi_result)
             file_names = {stimi_result.file_name};
-            animal_id_pattern = "Pack-" + digitsPattern(6);
-            date_pattern = digitsPattern(2)+"-" +digitsPattern(2)+"-" +digitsPattern(2) ;
-            vessel_pattern = ("Vessel-" +digitsPattern) | ("vessel"+digitsPattern)|("vessel-"+digitsPattern);
-            date = cellfun(@(x) extract(x,date_pattern),file_names);
-            vessel_id = cellfun(@(x) extract(x,vessel_pattern),file_names,'UniformOutput',false);
-            animal_id = cellfun(@(x) extract(x,animal_id_pattern),file_names,'UniformOutput',false);
+            vessel_id = LineScanFileNameHandler.get_vessel_identifyer(file_names);
+            animal_id = LineScanFileNameHandler.get_animal_id(file_names);
+            rois = LineScanFileNameHandler.get_roi(file_names);
+            power_mW = LineScanFileNameHandler.get_power(file_names);
             n_experiment = numel(file_names);
             all_file_info = [];
             for expi = 1:n_experiment
                 file_info = struct();
                 file_info.animal_id = animal_id{expi}{1};
-                if numel(vessel_id{expi})>0
-                    file_info.vessel_id = vessel_id{expi}{1};
-                else
-                    file_info.vessel_id = 'none';
-                end
-                file_info.date = date{expi};
+                file_info.vessel_id = vessel_id{expi};
+                file_info.roi = rois{expi}{1};
+                file_info.power_mw = power_mW(expi);
                 all_file_info = [all_file_info file_info];
             end
+       end
+
+       function results = print_nomality_test(all_file_info,stimi_result,pre_stim_field,post_stim_field)
+            results = [];
+            for animali = unique({all_file_info.animal_id})
+                disp(animali{1})
+                is_animal = arrayfun(@(x) strcmp(x.animal_id,animali),all_file_info);
+                animal_file = all_file_info(is_animal);
+                animal_result = stimi_result(is_animal);
+                for vesseli = unique({animal_file.vessel_id})
+                    disp(vesseli{1})
+                    is_vessel = arrayfun(@(x) strcmp(x.vessel_id,vesseli),animal_file);
+                    vessel_result = animal_result(is_vessel);
+                    pre_stim = arrayfun(@(x) getfield(x,pre_stim_field),vessel_result);
+                    post_stim = arrayfun(@(x) getfield(x,post_stim_field),vessel_result);
+                    [H_pre, p_pre, ~] = swtest(pre_stim);
+                    [H_post, p_post, ~] = swtest(post_stim);
+                    if ~H_pre
+                        cprintf('_red', [pre_stim_field ' is normally distributed' append(', p=',num2str(p_pre)) '\n'])
+                    else
+                        disp([pre_stim_field ' is not normally distributed' append(', p=',num2str(p_pre))])
+                    end
+                    if ~H_post
+                        cprintf('_red', [post_stim_field ' is normally distributed' append(', p=',num2str(p_post)) '\n'])
+                    else
+                        disp([post_stim_field ' is not normally distributed' append(', p=',num2str(p_post))])
+                    end
+                    resulti = struct();
+                    resulti.animali = animali;
+                    resulti.vesseli = vesseli;
+                    resulti.p_pre = p_pre;
+                    resulti.p_post = p_post;
+                    results = [results resulti];
+                end
+            end
+       end
+
+       function results = print_comparison_test(all_file_info,stimi_result,pre_stim_field,post_stim_field)
+            results = [];
+            for animali = unique({all_file_info.animal_id})
+                disp(animali{1})
+                is_animal = arrayfun(@(x) strcmp(x.animal_id,animali),all_file_info);
+                animal_file = all_file_info(is_animal);
+                animal_result = stimi_result(is_animal);
+                for vesseli = unique({animal_file.vessel_id})
+                    disp(vesseli{1})
+                    is_vessel = arrayfun(@(x) strcmp(x.vessel_id,vesseli),animal_file);
+                    vessel_result = animal_result(is_vessel);
+                    pre_stim = arrayfun(@(x) getfield(x,pre_stim_field),vessel_result);
+                    post_stim = arrayfun(@(x) getfield(x,post_stim_field),vessel_result);
+                    [H_pre, p_pre, ~] = swtest(pre_stim);
+                    [H_post, p_post, ~] = swtest(post_stim);
+                    if ~H_pre && ~H_post
+                        test = 't-test';
+                        [h,p] = ttest(pre_stim,post_stim);
+                    else
+                        test = 'wilcoxon signed rank test';
+                        [p,h,stats] = signrank(pre_stim,post_stim);
+                    end
+                    if h
+                        cprintf('_red', ['groups are significantly different from ' test ' ' append(', p=',num2str(p)) '\n'])
+                    else
+                        disp(['groups are not significantly different from ' test ' ' append(', p=',num2str(p))])
+                    end
+                    resulti = struct();
+                    resulti.animali = animali;
+                    resulti.vesseli = vesseli;
+                    resulti.p = p;
+                    results = [results resulti];
+                end
+            end
+       end
+
+
+
+       function [pre_stims,post_stims,info] = get_trail_data(all_file_info,stimi_result,pre_stim_field,post_stim_field)
+            pre_stims = {};
+            post_stims = {};
+            info = {};
+            for animali = unique({all_file_info.animal_id})
+                is_animal = arrayfun(@(x) strcmp(x.animal_id,animali),all_file_info);
+                animal_file = all_file_info(is_animal);
+                animal_result = stimi_result(is_animal);
+                for vesseli = unique({animal_file.vessel_id})
+                    is_vessel = arrayfun(@(x) strcmp(x.vessel_id,vesseli),animal_file);
+                    vessel_result = animal_result(is_vessel);
+                    pre_stim = arrayfun(@(x) getfield(x,pre_stim_field),vessel_result);
+                    post_stim = arrayfun(@(x) getfield(x,post_stim_field),vessel_result);
+                    pre_stims{end+1} = pre_stim;
+                    post_stims{end+1} = post_stim;
+                    info{end+1} = [animali{1} '_' vesseli{1}];
+                end
+            end
+       end
+
+       function plot_group_box_plot(pre_stims,post_stims,info)
+            all_stims = cell(0);
+            type = cell(0);
+            for i = 1:numel(post_stims)
+                all_stims{end+1}=pre_stims{i};
+                all_stims{end+1}=post_stims{i};
+                type{end+1} = 'pre';
+                type{end+1} = 'post';
+            end
+            g = [];
+            x = [];
+            element_type = {};
+            for i = 1:numel(all_stims)
+                x = [x all_stims{i}];
+                g = [g i*ones(size(all_stims{i}))];
+                for j = 1:numel(all_stims{i})
+                    element_type{end+1} = type{i};
+                end
+            end
+            positions = 1:numel(all_stims);
+            before_positions = 1:2:numel(all_stims);
+            after_positions = 2:2:numel(all_stims);
+            tick_positions = (before_positions+after_positions)/2;
+            h = boxchart(g,x,'GroupByColor',element_type);
+            set(h,'linewidth',2) 
+            set(gca,'xtick',tick_positions) 
+            set(gca,'xticklabel',info,'Fontsize',10) 
+            hold on
+            swarmchart(g,x,[],'k')
        end
 
        function plot_all_trace_plus_average_grouped_by_vessel(all_file_info,stimi_result)
@@ -92,14 +238,83 @@ classdef WekaPlotter
                     mean_trace = mean(vessel_result');
                     all_mean_trace{end+1} = mean_trace;
                     plot(mean_trace,'Color','red')
-                    [pks,locs] = findpeaks(mean_trace,'MinPeakProminence',0.01);
-                    post_stim = locs(locs>1000);
-                    loci = post_stim(1);
-                    scatter(loci,mean_trace(loci),1000,'rx')
+
+                    [val,id] = max(mean_trace);
+%                     [pks,locs] = findpeaks(mean_trace,'MinPeakProminence',0.1);
+%                     post_stim = locs(locs>1000);
+%                     loci = post_stim(1);
+                    scatter(id,val,1000,'rx')
                     hold off
-                    title({[animali{1} ' ' vesseli{1}],['tau = ' num2str((loci-1000)/100) ' s']})
+                    title({[animali{1} ' ' vesseli{1}],['tau = ' num2str((id-1000)/100) ' s']})
                     ploti = ploti+1;
                 end
+            end
+       end
+
+       function plot_histogram_grouped_by_vessel(all_file_info,stimi_result)
+            n_animals = numel(unique({all_file_info.animal_id}));
+            nplots = 0;
+            for animali = unique({all_file_info.animal_id})
+                is_animal = arrayfun(@(x) strcmp(x.animal_id,animali),all_file_info);
+                animal_file = all_file_info(is_animal);
+                nplots  = nplots + numel(unique({animal_file.vessel_id}));
+            end
+            figure
+            plots_per_row = 4;
+            nrows = ceil(nplots/plots_per_row);
+            ploti = 1;
+            all_mean_trace = cell(0);
+            for animali = unique({all_file_info.animal_id})
+                is_animal = arrayfun(@(x) strcmp(x.animal_id,animali),all_file_info);
+                animal_file = all_file_info(is_animal);
+                animal_result = stimi_result(is_animal);
+                for vesseli = unique({animal_file.vessel_id})
+                    is_vessel = arrayfun(@(x) strcmp(x.vessel_id,vesseli),animal_file);
+                    vessel_file = animal_file(is_vessel);
+                    vessel_result = animal_result(is_vessel);
+                    subplot(plots_per_row,nrows,ploti)
+                    WekaPlotter.plot_rbc_histogram(vessel_result,animali,vesseli)
+%                     hold on 
+%                     pre = [];
+%                     post = [];
+%                     for i = numel(vessel_result)
+%                         pre = [pre vessel_result(i).speed_pre_stim'*vessel_result(i).sign_change];
+%                         post = [post vessel_result(i).speed_post_stim'*vessel_result(i).sign_change];
+%                     end
+%                     all = [pre post];
+%                     bins = linspace(min(all)*0.8,max(all)*1.2,20);
+%                     histogram(pre,bins)
+%                     histogram(post,bins)
+%                     hold off
+%                     [h,p] = ttest2(pre,post);
+%                     if h
+%                         title({['\color{red}' animali{1} ' ' vesseli{1}],['t = ' num2str(p)]})
+%                     else
+%                         title({[animali{1} ' ' vesseli{1}],['t = ' num2str(p)]})
+%                     end
+                    ploti = ploti+1;
+                end
+            end
+       end
+
+       function plot_rbc_histogram(vessel_result,animal,vessel,nbins)
+            hold on 
+            pre = [];
+            post = [];
+            for i = numel(vessel_result)
+                pre = [pre vessel_result(i).speed_pre_stim'*vessel_result(i).sign_change];
+                post = [post vessel_result(i).speed_post_stim'*vessel_result(i).sign_change];
+            end
+            all = [pre post];
+            bins = linspace(min(all)*0.8,max(all)*1.2,nbins);
+            histogram(pre,bins)
+            histogram(post,bins)
+            hold off
+            [h,p] = ttest2(pre,post);
+            if h
+                title({['\color{red}' animal ' ' vessel],['t = ' num2str(p)]})
+            else
+                title({[animali{1} ' ' vesseli{1}],['t = ' num2str(p)]})
             end
        end
 
@@ -133,28 +348,50 @@ classdef WekaPlotter
             hold off
        end
 
-       function plot_filtered_trace_separately(stimi_result,stimulationi)
+       function plot_filtered_trace_separately(stimi_result,window_size_seconds)
             figure
             hold on
             ploti = 1;
-            tiledlayout(8,10, 'Padding', 'none', 'TileSpacing', 'compact'); 
+            ncol = 4;
+            nrow = ceil(numel(stimi_result)/ncol);
+            tiledlayout(nrow,ncol, 'Padding', 'none', 'TileSpacing', 'compact'); 
             for stimi = 1:numel(stimi_result)
                 resulti = stimi_result(stimi);
-                speedi = resulti.speed;
+                speedi = resulti.speed_standard*resulti.sign_change;
                 if isinf(mean(speedi))||all(isnan(speedi))
                     continue
                 end
-                timei = resulti.time;
+                timei = resulti.time_standard;
+                timei = timei-min(timei);
                 nexttile
                 hold on
-                plot(timei,speedi-resulti.mean_pre_stim)
-                plot(timei,resulti.filtered-resulti.mean_pre_stim ,'LineWidth',3)
-                line([10,10],[-10,10],'color','red')
-                end_stimuli = 10+stimulationi/1000;
-                line([end_stimuli,end_stimuli],[-10,10],'color','r')
+                plot(timei,speedi ,'LineWidth',3)
+                ylim([min(speedi),max(speedi)])
+                line([window_size_seconds,window_size_seconds],[-10,10],'color','r')
+                scatter(1.5*window_size_seconds,resulti.mean_post_stim,500,'r.')
+                scatter(1.5*window_size_seconds,resulti.peak_post_stim,500,'b.')
+                scatter(0.5*window_size_seconds,resulti.mean_pre_stim,500,'g.')
+                scatter(0.5*window_size_seconds,resulti.peak_pre_stim,500,'m.')
                 hold off
-                ylim([-1.5,1.5])
-                title(resulti.file_name)
+                xlim([0,2*window_size_seconds])
+                name = resulti.file_name;
+                name = split(name,'_');
+                name = strjoin(name,' ');
+                id = strfind(name,'vessel');
+%                 [h,p] = ttest2(resulti.speed_pre_stim,resulti.speed_post_stim);
+%                 if isempty(id)
+%                     title(name)
+%                 else
+%                     if isnan(h)
+%                         title({name(1:id-1),name(id:end),['t test not siginificant p=' num2str(p)]})
+%                     else
+%                         if h
+%                             title({name(1:id-1),name(id:end),['\color{red} t test siginificant p=' num2str(p)]})
+%                         else
+%                             title({name(1:id-1),name(id:end),['t test not siginificant p=' num2str(p)]})
+%                         end
+%                     end
+%                 end
                 ploti = ploti+1;
             end
        end
@@ -164,12 +401,9 @@ classdef WekaPlotter
             hold on 
             for stimi = 1:numel(stimi_result)
                 resulti = stimi_result(stimi);
-                if resulti.mean_pre_stim>0
-                    speedi = resulti.filtered-resulti.mean_pre_stim;
-                else
-                    speedi = -(resulti.filtered-resulti.mean_pre_stim);
-                end
-                plot(resulti.time,speedi)
+                timei = resulti.time_standard;
+                speedi = resulti.speed_standard*resulti.sign_change-resulti.mean_pre_stim;
+                plot(timei-min(timei),speedi)
             end
             hold off
        end
@@ -185,17 +419,16 @@ classdef WekaPlotter
        end
 
        function standardized = unify_standardized_trace(stimi_result)
-            sign = arrayfun(@sign,[stimi_result.mean_pre_stim]);
             offset = [stimi_result.mean_pre_stim];
-            standardized = {stimi_result.standardized};
-            tuncated = cellfun(@(x) numel(x)<1700 ,standardized);
-            standardized = standardized(~tuncated);
+            sign = [stimi_result.sign_change];
+            standardized = arrayfun(@(x) [x.filtered_speed_pre_stim' x.filtered_speed_post_stim']' , stimi_result,'UniformOutput',false);
+%             tuncated = cellfun(@(x) numel(x)<1700 ,standardized);
+%             standardized = standardized(~tuncated);
             nsamples = min(cellfun(@numel ,standardized));
             standardized = cellfun(@(x) x(1:nsamples),standardized,'UniformOutput',false);
             standardized = cell2mat(standardized);
-            standardized = standardized./sign(~tuncated);
-            offset = offset(~tuncated);
-            standardized = standardized-offset./sign(~tuncated);
+            standardized = standardized./sign;
+            standardized = standardized-offset./sign;
        end
 
        function plot_average_filtered_response(stimi_result)
@@ -217,9 +450,9 @@ classdef WekaPlotter
             plot(mean((standardized-offset./sign(~tuncated))'),'Color','red','LineWidth',3)
        end
 
-       function [duration_ms,in_window,pre_stim,post_stim] = get_stim_window(mat,stimulusi,locations,stripe_statistics)
-            window_size_seconds = 10;
-            offset_seconds = 0.5;
+       function [duration_ms,in_window,pre_stim,post_stim,pre_stim_standard,...
+               post_stim_standard,in_window_standard] = get_stim_window(mat,stimulusi,...
+               locations,stripe_statistics,duration,sampling_frequency,offset_seconds,window_size_seconds)
             start_time_samples = mat.start_time(stimulusi);
             end_time_samples = mat.end_time(stimulusi);
             start_time_ms = start_time_samples*mat.dt_ms;
@@ -239,6 +472,32 @@ classdef WekaPlotter
             in_window = cellfun(@(x) x.location>analysis_start_samples && x.location<analysis_end_time_samples ,stripe_statistics);
             pre_stim = cellfun(@(x) x.location>analysis_start_samples && x.location< start_time_samples - offset_samples ,stripe_statistics);
             post_stim = cellfun(@(x) x.location>end_time_samples + offset_samples  && x.location<analysis_end_time_samples ,stripe_statistics);
+            start_time_standard = floor(start_time_ms/1000*sampling_frequency);
+            end_time_standard = floor(end_time_ms/1000*sampling_frequency);
+            offset_standard = floor(offset_seconds*sampling_frequency);
+            window_size_standard = floor(window_size_seconds*sampling_frequency);
+%             disp([stimulusi mat.tif_path])
+%             if strcmp(mat.tif_path,'/net/dk-server/bholloway/Zhongkai/FoG/Pack-050522-NoCut_06-13-22_vessel-10_00001_roi_1.tif')
+%                 disp('')
+%             end
+            standard_duration = floor(duration*sampling_frequency);
+            standard_start = start_time_standard-window_size_standard;
+            if standard_start <0
+                standard_start=1;
+            end
+            standard_end = end_time_standard+window_size_standard;
+            if standard_end > standard_duration
+                standard_end = standard_duration;
+            end
+            pre_stim_standard = zeros(standard_duration,1);
+            pre_stim_standard(standard_start:end_time_standard-offset_standard) = 1;
+            post_stim_standard = zeros(standard_duration,1);
+            post_stim_standard(end_time_standard+offset_standard:standard_end) = 1;
+            in_window_standard = zeros(standard_duration,1);
+            in_window_standard(standard_start:standard_end)=1;
+            pre_stim_standard = pre_stim_standard==1;
+            post_stim_standard = post_stim_standard==1;
+            in_window_standard = in_window_standard==1;
        end
 
        function duration_ms = standardize_stimulation_duration(duration_ms)

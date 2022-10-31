@@ -1,8 +1,8 @@
 function analyze_file(file_name,tif_files,mat_files,radon_window_size)
     disp(append('working on ',file_name));
-    mat_path = FileHandler.get_file(mat_files,file_name);
+    mat_path = FileHandler.get_file_path(mat_files,file_name);
     load(mat_path,'has_stimulus','dx_um','dt_ms');
-    tif_path = FileHandler.get_file(tif_files,file_name);
+    tif_path = FileHandler.get_file_path(tif_files,file_name);
     image = FileHandler.load_image_data(tif_path);
     if has_stimulus
         if ~exist('radon_window_size','var')

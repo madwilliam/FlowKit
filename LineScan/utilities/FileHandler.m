@@ -47,7 +47,11 @@ classdef FileHandler
                    end
                end
            end
-           file = fullfile(file.folder, file.name);
+       end
+       
+       function file_path = get_file_path(files,file_name)
+           file = FileHandler.get_file(files,file_name);
+           file_path = fullfile(file.folder, file.name);
        end
 
        function [shared_experiment,type1_no_2,type2_no_1] = get_shared_experiments(filetype1,filetype2)
@@ -85,7 +89,7 @@ classdef FileHandler
        end
 
       function stimulus = load_stimulus(pmt_files,file_name)
-           pmt_file = FileHandler.get_file(pmt_files,file_name);
+           pmt_file = FileHandler.get_file_path(pmt_files,file_name);
            fid=fopen(pmt_file,'r');
            M=fread(fid,'int16=>int16');
            stimulus=M(1:2:end);

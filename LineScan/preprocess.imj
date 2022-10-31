@@ -1,0 +1,23 @@
+dir1 = getDirectory("Choose Source Directory ");
+dir2 = getDirectory("Choose Destination Directory ");
+list = getFileList(dir1);
+setBatchMode(true);
+
+for (i=0; i<list.length; i++) {
+    open(dir1+list[i]);
+    run("CLIJ2 Macro Extensions", "cl_device=[Ellesmere]");
+    Ext.CLIJ2_push(list[i]);
+    image2 = "divide_by_gaussian_background";
+    sigma_x = 50.0;
+    sigma_y = 2.0;
+    sigma_z = 2.0;
+    Ext.CLIJ2_divideByGaussianBackground(list[i], image2, sigma_x, sigma_y, sigma_z);
+    Ext.CLIJ2_pull(image2);
+    saveAs('tiff', dir2+list[i]);
+    close('*');
+    Ext.CLIJ2_clear();
+}
+%%
+
+
+

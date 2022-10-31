@@ -11,7 +11,7 @@ file_name = 'PACK-050522-NoCut_05-17-22_Vessel1_CBF_00004';
 meta_files = FileHandler.get_meta_files(path);
 tif_files = FileHandler.get_tif_files(path);
 pmt_files = FileHandler.get_pmt_files(path);
-meta_file = FileHandler.get_file(meta_files,file_name);
+meta_file = FileHandler.get_file_path(meta_files,file_name);
 [SI,RoiGroups] = FileHandler.load_meta_data(meta_file);
 [dx,dt] = get_dxdt(SI,RoiGroups);
 %%

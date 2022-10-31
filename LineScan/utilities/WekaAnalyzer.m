@@ -1,11 +1,14 @@
 classdef WekaAnalyzer
    methods(Static)
-       function stripe_statistics = find_stripes(image)
+       function stripe_statistics = find_stripes(image,threshold)
+            if ~exist('threshold','var')
+                threshold = 2;
+            end
             mid_line = floor(size(image,1)/2);
             image = 1-image;
             image = imbinarize(image);
             image = bwdist(~image);
-            image = image>2;
+            image = image>threshold;
             objects = bwconncomp(image);
             area = cellfun(@numel,objects.PixelIdxList);
             is_stripe = area>500;

@@ -10,8 +10,8 @@ function adjust_window_size(out_dir)
             break
         end
         try
-            mat_path = FileHandler.get_file(mat_files,file_name);
-            tif_path = FileHandler.get_file(tif_files,file_name);
+            mat_path = FileHandler.get_file_path(mat_files,file_name);
+            tif_path = FileHandler.get_file_path(tif_files,file_name);
            window_size = nan;
            load(mat_path,'result','start_time','end_time','dt_ms','dx_um');
            [n_pixel,~] = FileHandler.get_image_size(tif_path);

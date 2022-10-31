@@ -14,8 +14,8 @@ end
 
 function crop_tiff(file_name,pmt_files,meta_files, output_dir)
     disp(append('cropping tiffs for ',file_name))
-    pmt_path = FileHandler.get_file(pmt_files,file_name);
-    meta_path = FileHandler.get_file(meta_files,file_name);
+    pmt_path = FileHandler.get_file_path(pmt_files,file_name);
+    meta_path = FileHandler.get_file_path(meta_files,file_name);
     [SI,RoiGroups] = parse_scan_image_meta(meta_path);
     total_pixels = SI.hScan2D.lineScanSamplesPerFrame;
     n_channels = numel(SI.hChannels.channelSave);

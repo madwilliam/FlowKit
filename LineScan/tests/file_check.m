@@ -3,7 +3,7 @@ nfiles = numel(mat_files);
 for i=1:nfiles
     filei = mat_files(i);
     file_name = FileHandler.strip_extensions(filei.name);
-    mat_path = FileHandler.get_file(mat_files,file_name);
+    mat_path = FileHandler.get_file_path(mat_files,file_name);
     load(mat_path,'start_time','end_time','dt_ms');
     nmtim = numel(start_time);
      for stimi = 1: nstimulus
