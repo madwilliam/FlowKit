@@ -2,21 +2,20 @@ classdef WekaAnalyzer
    methods(Static)
        function stripe_statistics = find_stripes(image,threshold)
             if ~exist('threshold','var')
-                threshold = 2;
+                threshold = 4;
             end
             mid_line = floor(size(image,1)/2);
             image = 1-image;
-            image = imbinarize(image);
-            image = bwdist(~image);
-            image = image>threshold;
-            objects = bwconncomp(image);
+            dist = bwdist(~image);
+            mask = dist>threshold;
+            objects = bwconncomp(mask);
             area = cellfun(@numel,objects.PixelIdxList);
             is_stripe = area>500;
             stripes = objects.PixelIdxList(is_stripe);
             stripe_statistics = cell(sum(is_stripe),1);
             for stripei = 1:numel(stripes)
                 stripe = stripes{stripei};
-                [x,y] = ind2sub(size(image),stripe);
+                [x,y] = ind2sub(size(mask),stripe);
                 mdl = fitlm(y,x);
                 line = WekaAnalyzer.parse_model(mdl,mid_line);
                 stripe_statistics{stripei} = line;
