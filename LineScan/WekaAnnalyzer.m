@@ -13,7 +13,7 @@ classdef WekaAnnalyzer
        function [stimi_result,all_file_info] = get_result_of_stimulationi(all_results,stimulationi)
             is_stimulationi = [all_results.duration_ms]==stimulationi;
             stimi_result = all_results(is_stimulationi);
-            all_file_info = WekaPlotter.organize_file_information(stimi_result,offset_seconds,window_size_seconds);
+            all_file_info = WekaPlotter.organize_file_information(stimi_result);
        end
 
        function [p,tbl,stats] = population_annova_per_trace(all_results)

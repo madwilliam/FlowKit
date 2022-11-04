@@ -1,6 +1,6 @@
-mat_root = "/net/dk-server/bholloway/Zhongkai/FoG";
-weka_root = '/net/dk-server/bholloway/Zhongkai/mlout/';
-window_size_seconds = 4;
+mat_root = "/net/dk-server/bholloway/Zhongkai/Tifs and Mats";
+weka_root = '/net/dk-server/bholloway/Zhongkai/matlab_filtered_unprocessed_mask/';
+window_size_seconds = 10;
 offset_seconds = 1;
 all_results = WekaPlotter.parse_result_by_stimulation(weka_root,mat_root,offset_seconds,window_size_seconds);
 power_variation = cellfun(@(x) contains(x,'Pack-081621_10-27-21')|contains(x,'Pack-071022_08-19-22'),{all_results.file_name});
@@ -8,12 +8,13 @@ all_results = all_results(~power_variation);
 
 %%
 WekaPlotter.print_stimulation_counts(all_results)
-stimulationi = 1000;
+stimulationi = 100;
 [stimi_result,all_file_info] = WekaAnnalyzer.get_result_of_stimulationi(all_results,stimulationi);
 
 %%
 WekaPlotter.plot_mean_speed_before_and_after(stimi_result)
 WekaPlotter.plot_filtered_trace_separately(stimi_result,window_size_seconds)
+WekaPlotter.plot_unfiltered_trace_separately(stimi_result,window_size_seconds)
 WekaPlotter.plot_all_filtered_traces_standardize_direction(stimi_result)
 WekaPlotter.plot_uncentered_filtered_traces(stimi_result)
 WekaPlotter.plot_average_filtered_response(stimi_result)

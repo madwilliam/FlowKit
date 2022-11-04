@@ -29,6 +29,7 @@ framei = 200;
 linei = 5;
 PO2Plotter.plot_fit_to_one_frame(framei,linei,O2Ptime,averaged_data,idx_start,parameters)
 PO2Plotter.plot_tau_across_frames_for_each_line(parameters,3)
+save('data.mat','parameters')
 %%
 framei = 500;
 image = imread(tiffile, framei) ;
@@ -40,5 +41,17 @@ for i =50:100
 end
 avg = avg/50;
 imagesc(avg)
+%%
+[nframes,nline,ndata] = size(allpo2_data);
+average_window = 5;
+nwindows = nframes-average_window;
+averaged_data = zeros([nwindows,nline,ndata]);
 
+for linei = 1:nline
+    for windowi = 1:nwindows
+        start_window = windowi;
+        end_window = windowi+average_window-1;
+        averaged_data(windowi,linei,:) = squeeze(mean(allpo2_data(start_window:end_window,linei,:)));
+    end
+end
 
