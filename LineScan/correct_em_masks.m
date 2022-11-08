@@ -1,5 +1,5 @@
-weka_root = '/net/dk-server/bholloway/Zhongkai/matlab_filtered_unprocessed_mask/'; %ML output
-mat_root = '/net/dk-server/bholloway/Zhongkai/matlab_filtered_unprocessed/'; %original mat file locations
+weka_root = '/net/dk-server/bholloway/Zhongkai/matlab_filtered_nonFoG_mask/'; %ML output
+mat_root = '/net/dk-server/bholloway/Zhongkai/Tifs and Mats/'; %original mat file locations
 weka_files = FileHandler.get_tif_files(weka_root);
 ogtifs = FileHandler.get_tif_files(mat_root);
 nfiles = numel(ogtifs);
@@ -15,8 +15,8 @@ for filei = 1:nfiles
     if zeros > ones
         mask = 1-mask;
         t = Tiff(mask_path,'w');
-        tagstruct.ImageLength     = size(data,1);
-        tagstruct.ImageWidth      = size(data,2);
+        tagstruct.ImageLength     = size(mask,1);
+        tagstruct.ImageWidth      = size(mask,2);
         tagstruct.Photometric     = Tiff.Photometric.MinIsBlack;
         tagstruct.BitsPerSample   = 32;
         tagstruct.SamplesPerPixel = 1;

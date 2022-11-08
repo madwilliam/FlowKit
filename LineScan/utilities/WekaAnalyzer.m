@@ -5,8 +5,7 @@ classdef WekaAnalyzer
                 threshold = 4;
             end
             mid_line = floor(size(image,1)/2);
-%             image = 1-image;
-            dist = bwdist(~image);
+            dist = bwdist(image);
             mask = dist>threshold;
             objects = bwconncomp(mask);
             area = cellfun(@numel,objects.PixelIdxList);

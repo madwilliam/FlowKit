@@ -1,4 +1,4 @@
-function process_weka(weka_file,weka_root,threshold)
+function process_mask(weka_file,weka_root,threshold)
     if ~exist('threshold','var')
         threshold = 2;
     end
