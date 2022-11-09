@@ -1,6 +1,6 @@
-weka_root = '/net/dk-server/bholloway/Zhongkai/matlab_filtered_unprocessed_mask/';
+weka_root = '/net/dk-server/bholloway/Zhongkai/up050522_mask/';
 out_dir = '/net/dk-server/bholloway/Zhongkai/Tifs and Mats/';
-figure_dir = '/net/dk-server/bholloway/Zhongkai/lowsnr_weka_backplot/';
+figure_dir = '/net/dk-server/bholloway/Zhongkai/050522_back/';
 if ~ exist(figure_dir)
     mkdir(figure_dir)
 end
