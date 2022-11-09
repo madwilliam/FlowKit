@@ -1,5 +1,5 @@
-weka_root = '/net/dk-server/bholloway/Zhongkai/matlab_filtered_unprocessed_mask/'; %ML output
-mat_root = '/net/dk-server/bholloway/Zhongkai/Tifs and Mats/'; %original mat file locations
+weka_root = '/scratch/line_scan_ben/matlab_filtered_unprocessed_mask/'; %ML output
+mat_root = '/scratch/line_scan_ben/Tifs and Mats/'; %original mat file locations
 weka_files = FileHandler.get_tif_files(weka_root);
 mat_files = FileHandler.get_mat_files(weka_root);
 nfiles = numel(weka_files);
