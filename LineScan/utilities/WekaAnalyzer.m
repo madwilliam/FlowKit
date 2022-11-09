@@ -5,8 +5,7 @@ classdef WekaAnalyzer
                 threshold = 4;
             end
             mid_line = floor(size(image,1)/2);
-%             image = 1-image;
-            dist = bwdist(~image);
+            dist = bwdist(image);
             mask = dist>threshold;
             objects = bwconncomp(mask);
             area = cellfun(@numel,objects.PixelIdxList);
@@ -17,7 +16,7 @@ classdef WekaAnalyzer
                 stripe = stripes{stripei};
                 [x,y] = ind2sub(size(mask),stripe);
                 mdl = fitlm(y,x);
-                line = WekaAnalyzer.parse_model(mdl,mid_line);
+                line = StripeAnnalyzer.parse_model(mdl,mid_line);
                 stripe_statistics{stripei} = line;
             end
        end
@@ -37,14 +36,6 @@ classdef WekaAnalyzer
                 stripe = stripes{stripei};
                 stripe_coordinates{stripei} = stripe;
             end
-       end
-
-       function line = parse_model(model,mid_line)
-           %location is the intersection of the line with the horizontal
-           %midline of the image
-            line.intercept = model.Coefficients{1,'Estimate'};
-            line.slope = model.Coefficients{2,'Estimate'};
-            line.location = (mid_line-line.intercept)/line.slope;
        end
 
        function plot_stripe(image,stripe_statistics,range)

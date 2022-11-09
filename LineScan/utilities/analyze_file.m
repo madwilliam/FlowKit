@@ -8,15 +8,17 @@ function analyze_file(file_name,tif_files,mat_files,radon_window_size)
         if ~exist('radon_window_size','var')
             radon_window_size=get_chunksize_from_dt(dt_ms);
         end
-        result=get_slope_from_line_scan(image,radon_window_size,@two_step_radon);
-        cell_count_per_second = get_flux(result,dt_ms);
-        speed = get_speed(result,dt_ms,dx_um);            
+%         result=get_slope_from_line_scan(image,radon_window_size,@two_step_radon);
+%         cell_count_per_second = get_flux(result,dt_ms);
+%         speed = get_speed(result,dt_ms,dx_um);            
         nsample = size(image,2);
         fileTime=nsample*dt_ms/1000;
-        n_data = numel(speed);
+%         n_data = numel(speed);
         time_per_velocity_data_s = fileTime/n_data;
-        save(mat_path,'speed','cell_count_per_second','result', ...
-            'time_per_velocity_data_s','tif_path','-append');
+%         save(mat_path,'speed','cell_count_per_second','result', ...
+%             'time_per_velocity_data_s','tif_path','-append');
+
+        save(mat_path,'time_per_velocity_data_s','tif_path','-append');
     end
 end
 

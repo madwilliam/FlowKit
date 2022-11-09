@@ -1,7 +1,7 @@
 classdef LineScanFileNameHandler
    methods(Static)
        function animal_ids = get_animal_id(file_names)
-           animal_id_pattern = "Pack-" + digitsPattern(6);
+           animal_id_pattern = "Pack-" + digitsPattern(6)|"PACK-" + digitsPattern(6);
            animal_ids = cellfun(@(x) extract(x,animal_id_pattern),file_names,'UniformOutput',false);
        end
 
