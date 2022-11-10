@@ -1,4 +1,4 @@
-weka_root = '/net/dk-server/bholloway/Zhongkai/up050522_mask/'; %ML output
+weka_root = '/net/dk-server/bholloway/Zhongkai/matlab_filtered_nonFoG_mask/'; %ML output
 mat_root = '/net/dk-server/bholloway/Zhongkai/Tifs and Mats/'; %original mat file locations
 weka_files = FileHandler.get_tif_files(weka_root);
 mat_files = FileHandler.get_mat_files(weka_root);

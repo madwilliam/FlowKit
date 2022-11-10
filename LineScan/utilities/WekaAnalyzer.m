@@ -58,7 +58,7 @@ classdef WekaAnalyzer
             stripes_in_range = stripe_statistics(stripe_is_in_range);
             for stripei = 1:numel(stripes_in_range)
                 line = stripes_in_range{stripei};
-                plot(xs,xs*line.slope+line.intercept+line.slope*(range(1)-1),'linewidth',5,color='red')
+                plot(xs,xs*line.slope+line.intercept+line.slope*(range(1)-1),'linewidth',5,'color','red')
                 xlim([0,size(image_chunk ,2)])
                 ylim([0,size(image_chunk ,1)])
             end
