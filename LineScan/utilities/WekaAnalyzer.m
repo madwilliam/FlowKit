@@ -16,6 +16,8 @@ classdef WekaAnalyzer
                 [x,y] = ind2sub(size(mask),stripe);
                 mdl = fitlm(y,x);
                 line = StripeAnnalyzer.parse_model(mdl,mid_line);
+                line.x = x;
+                line.y = y;
                 stripe_statistics{stripei} = line;
             end
        end
