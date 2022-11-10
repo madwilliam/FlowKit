@@ -1,5 +1,5 @@
-mat_root = "/net/dk-server/bholloway/Zhongkai/Tifs and Mats";
-weka_root = '/net/dk-server/bholloway/Zhongkai/matlab_filtered_unprocessed_mask/';
+mat_root = "/net/dk-server/bholloway/Zhongkai/new_batch";
+weka_root = '/net/dk-server/bholloway/Zhongkai/controls_mask/';
 window_size_seconds = 10;
 offset_seconds = 1;
 all_results = WekaPlotter.parse_result_by_stimulation(weka_root,mat_root,offset_seconds,window_size_seconds);

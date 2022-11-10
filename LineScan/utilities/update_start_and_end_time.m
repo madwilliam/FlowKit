@@ -46,7 +46,7 @@ function crop_tiff(file_name,pmt_files,meta_files, output_dir)
                 mat_name = append(save_name,'.mat');
                 image = im2uint16(image);
                 imwrite(image,fullfile(output_dir,tif_name));
-                save(fullfile(output_dir,mat_name),'start_time','end_time')
+                save(fullfile(output_dir,mat_name),'start_time','end_time','--append')
             end
         end
     end
