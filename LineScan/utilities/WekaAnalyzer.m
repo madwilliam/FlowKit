@@ -5,8 +5,7 @@ classdef WekaAnalyzer
                 threshold = 4;
             end
             mid_line = floor(size(image,1)/2);
-            dist = bwdist(image);
-            mask = dist>threshold;
+            mask = WekaAnalyzer.preprocess_mask(image,threshold);
             objects = bwconncomp(mask);
             area = cellfun(@numel,objects.PixelIdxList);
             is_stripe = area>500;
@@ -19,6 +18,15 @@ classdef WekaAnalyzer
                 line = StripeAnnalyzer.parse_model(mdl,mid_line);
                 stripe_statistics{stripei} = line;
             end
+       end
+
+       function mask = preprocess_mask(mask,threshold)
+           if ~exist('threshold','var')
+                threshold = 4;
+           end
+            mask =~mask;
+            dist = bwdist(mask);
+            mask = dist>threshold;
        end
 
        function stripe_coordinates = crop_stripes(image)
