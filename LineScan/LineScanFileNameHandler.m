@@ -1,7 +1,9 @@
 classdef LineScanFileNameHandler
    methods(Static)
        function animal_ids = get_animal_id(file_names)
-           animal_id_pattern = "Pack-" + digitsPattern(6)|"PACK-" + digitsPattern(6);
+           animal_id_pattern = "Pack-" + digitsPattern(6)|"PACK-" + digitsPattern(6)|...
+               "Pack-" + digitsPattern(6)+'-'+lettersPattern|"PACK-" + digitsPattern(6)+'-'+lettersPattern|...
+               "NVC-"+ digitsPattern(6)|"NVC-"+ digitsPattern(6)+'-'+lettersPattern;
            animal_ids = cellfun(@(x) extract(x,animal_id_pattern),file_names,'UniformOutput',false);
        end
 
@@ -54,7 +56,7 @@ classdef LineScanFileNameHandler
 
        function dates = get_date(file_names)
            date_pattern = digitsPattern(2)+"-" +digitsPattern(2)+"-" +digitsPattern(2) ;
-           dates = cellfun(@(x) extract(x,date_pattern),file_names);
+           dates = cellfun(@(x) extract(x,date_pattern),file_names,'UniformOutput',false);
        end
 
        function all_powers = get_power(file_names)

@@ -3,7 +3,6 @@ classdef WekaPlotter
        function all_results = parse_result_by_stimulation(weka_root,mat_root,offset_seconds,window_size_seconds)
             weka_mat_files = FileHandler.get_mat_files(weka_root);
             mat_files = FileHandler.get_mat_files(mat_root);
-            tif_files = FileHandler.get_tif_files(mat_root);
             all_results = [];
             resample_frequency = 100;
             for i=1:numel( weka_mat_files )
@@ -11,68 +10,101 @@ classdef WekaPlotter
                     weka = weka_mat_files(i);
                     file_name = FileHandler.strip_extensions(weka.name);
                     mat_file = FileHandler.get_file_path(mat_files,file_name);
-                    tif_file = FileHandler.get_file_path(tif_files,file_name);
-                    tif = FileHandler.load_image_data(tif_file);
                     weka_mat_file = FileHandler.get_file_path(weka_mat_files,file_name);
                     mat = load( mat_file );
                     load(weka_mat_file,'stripe_statistics')
-                    ispositive = cellfun(@(x) x.location>0 ,stripe_statistics);
-                    stripe_statistics = stripe_statistics(ispositive);
-                    locations = cellfun(@(x) x.location ,stripe_statistics);
-                    speed_um_ms = cellfun(@(x) x.slope ,stripe_statistics)*mat.dx_um/mat.dt_ms;
-                    time = floor(locations*mat.dt_ms/1000);
-                    [time,id] = sort(time);
-                    speed_um_ms = speed_um_ms(id);
-                    [standardized,ty] =  resample(speed_um_ms,time,resample_frequency);
-                    filtered = medfilt1(standardized,4);
-                    n_stimulus = numel( mat.start_time );  
-                    for stimulusi=1:n_stimulus 
-                        try
-    
-    %                     if strcmp(file_name,'PACK-071022_08-08-22_vessel_100ms-stim_test_00001_roi_1')&&stimulusi==4
-    %                         disp('here')
-    %                     end
-                            tif
-                            [duration_ms,in_window,pre_stim,post_stim,pre_stim_standard,post_stim_standard,in_window_standard] ...
-                                = WekaPlotter.get_stim_window(mat,stimulusi,locations,...
-                                stripe_statistics,max(time),resample_frequency,...
-                                offset_seconds,window_size_seconds);
-                            if sum(in_window) == 0
-                                continue
-                            end
-                            result = struct();
-                            result.duration_ms = duration_ms;
-                            result.file_name = [file_name '_stim_' num2str(stimulusi)];
-                            result.speed = speed_um_ms(in_window);
-                            result.time = time(in_window)-min(time(in_window));
-                            result.time_standard = ty(in_window_standard);
-                            result.speed_standard = filtered(in_window_standard);
-                            result.time_pre_stim_standard = ty(pre_stim_standard);
-                            result.speed_pre_stim = speed_um_ms(pre_stim);
-                            result.time_pre_stim = time(pre_stim)-min(time(pre_stim));
-                            result.time_post_stim_standard = ty(post_stim_standard);
-                            result.speed_post_stim = speed_um_ms(post_stim);
-                            result.time_post_stim = time(post_stim)-min(time(post_stim));
-                            result.filtered_speed_pre_stim = filtered(pre_stim_standard);
-                            result.filtered_speed_post_stim = filtered(post_stim_standard);
-                            sign_change = sign(mean(result.filtered_speed_pre_stim));
-                            result.mean_pre_stim = mean(result.filtered_speed_pre_stim)*sign_change;
-                            result.mean_post_stim = mean(result.filtered_speed_post_stim)*sign_change;
-                            result.delta_mean = result.mean_pre_stim-result.mean_post_stim;
-                            result.area_under_the_curve_pre_stim = sum(result.filtered_speed_pre_stim)*sign_change;
-                            result.area_under_the_curve_post_stim = sum(result.filtered_speed_post_stim)*sign_change;
-                            result.delta_area = result.area_under_the_curve_post_stim-result.area_under_the_curve_pre_stim;
-                            result.peak_pre_stim = max(result.filtered_speed_pre_stim*sign_change);
-                            result.peak_post_stim = max(result.filtered_speed_post_stim*sign_change);
-                            result.sign_change = sign_change;
-                            result.delta_peak = result.peak_post_stim-result.peak_pre_stim;
-                            all_results = [all_results result];
-                        catch
-                            disp(file_name)
-                        end
-                    end
+                    results = WekaPlotter.get_result_from_tif_and_stripes(stripe_statistics,mat,offset_seconds,window_size_seconds,resample_frequency,file_name);
+                    all_results = [all_results results];
                 catch
                     disp(stimulusi)
+                end
+            end
+       end
+
+       function all_results = parse_result_by_stimulation_radon(mat_root,offset_seconds,window_size_seconds)
+            mat_files = FileHandler.get_mat_files(mat_root);
+            all_results = [];
+            resample_frequency = 100;
+            for i=1:numel( mat_files )
+                try
+                    file = mat_files(i);
+                    file_name = FileHandler.strip_extensions(file.name);
+                    mat_file = FileHandler.get_file_path(mat_files,file_name);
+                    mat = load( mat_file );
+                    stripe_statistics = cell(0);
+                    n_stripes = numel(mat.result.locations);
+                    for stripei = 1:n_stripes
+                        stripe.slope = mat.result.slopes(stripei);
+                        stripe.location = mat.result.locations(stripei);
+                        stripe_statistics{end+1} = stripe;
+                    end
+                    %load(weka_mat_file,'stripe_statistics')
+                    results = WekaPlotter.get_result_from_tif_and_stripes(stripe_statistics,mat,offset_seconds,window_size_seconds,resample_frequency,file_name);
+                    all_results = [all_results results];
+                catch
+                    disp(stimulusi)
+                end
+            end
+       end
+
+       function results = get_result_from_tif_and_stripes(stripe_statistics,mat,offset_seconds,window_size_seconds,resample_frequency,file_name)
+            locations = cellfun(@(x) x.location ,stripe_statistics);
+            [locations,id] = sort(locations);
+            stripe_statistics = stripe_statistics(id);
+            ispositive = cellfun(@(x) x.location>0 ,stripe_statistics);
+            stripe_statistics = stripe_statistics(ispositive);
+            locations = cellfun(@(x) x.location ,stripe_statistics);
+            speed_um_ms = cellfun(@(x) x.slope ,stripe_statistics)*mat.dx_um/mat.dt_ms;
+            time = locations*mat.dt_ms/1000;
+            time(time==inf)=0;
+            [standardized,ty] =  resample(speed_um_ms,time,resample_frequency);
+            filtered = medfilt1(standardized,10);
+            n_stimulus = numel( mat.start_time );  
+            results = [];
+            for stimulusi=1:n_stimulus 
+                try
+                    [duration_ms,in_window,pre_stim,post_stim,pre_stim_standard,post_stim_standard,in_window_standard] ...
+                        = WekaPlotter.get_stim_window(mat,stimulusi,locations,...
+                        stripe_statistics,max(time),resample_frequency,...
+                        offset_seconds,window_size_seconds);
+                    if sum(in_window) == 0
+                        continue
+                    end
+                    result = struct();
+                    result.duration_ms = duration_ms;
+                    result.file_name = [file_name '_stim_' num2str(stimulusi)];
+                    result.speed = speed_um_ms(in_window);
+                    result.time = time(in_window)-min(time(in_window));
+                    if numel(ty)<numel(in_window_standard)
+                        diff = numel(in_window_standard)-numel(ty);
+                        in_window_standard = in_window_standard(1:end-diff);
+                        post_stim_standard = post_stim_standard(1:end-diff);
+                        pre_stim_standard = pre_stim_standard(1:end-diff);
+                    end
+                    result.time_standard = ty(in_window_standard);
+                    result.speed_standard = filtered(in_window_standard);
+                    result.time_pre_stim_standard = ty(pre_stim_standard);
+                    result.speed_pre_stim = speed_um_ms(pre_stim);
+                    result.time_pre_stim = time(pre_stim)-min(time(pre_stim));
+                    result.time_post_stim_standard = ty(post_stim_standard);
+                    result.speed_post_stim = speed_um_ms(post_stim);
+                    result.time_post_stim = time(post_stim)-min(time(post_stim));
+                    result.filtered_speed_pre_stim = filtered(pre_stim_standard);
+                    result.filtered_speed_post_stim = filtered(post_stim_standard);
+                    sign_change = sign(mean(result.filtered_speed_pre_stim));
+                    result.mean_pre_stim = mean(result.filtered_speed_pre_stim)*sign_change;
+                    result.mean_post_stim = mean(result.filtered_speed_post_stim)*sign_change;
+                    result.delta_mean = result.mean_pre_stim-result.mean_post_stim;
+                    result.area_under_the_curve_pre_stim = sum(result.filtered_speed_pre_stim)*sign_change;
+                    result.area_under_the_curve_post_stim = sum(result.filtered_speed_post_stim)*sign_change;
+                    result.delta_area = result.area_under_the_curve_post_stim-result.area_under_the_curve_pre_stim;
+                    result.peak_pre_stim = max(result.filtered_speed_pre_stim*sign_change);
+                    result.peak_post_stim = max(result.filtered_speed_post_stim*sign_change);
+                    result.sign_change = sign_change;
+                    result.delta_peak = result.peak_post_stim-result.peak_pre_stim;
+                    results = [results result];
+                catch
+                    disp(file_name)
                 end
             end
        end
@@ -93,7 +125,11 @@ classdef WekaPlotter
                 try
                     file_info = struct();
                     file_info.animal_id = animal_id{expi}{1};
-                    file_info.vessel_id = vessel_id{expi};
+                    if isempty(vessel_id{expi})
+                        file_info.vessel_id=nan;
+                    else
+                        file_info.vessel_id = vessel_id{expi}{1};
+                    end
                     file_info.roi = rois{expi}{1};
                     file_info.power_mw = power_mW(expi);
                     all_file_info = [all_file_info file_info];
@@ -251,22 +287,28 @@ classdef WekaPlotter
                     subplot(plots_per_row,nrows,ploti)
                     hold on 
                     traces = [];
-                    vessel_result = WekaPlotter.unify_standardized_trace(vessel_result);
-                    for stimi = 1:size(vessel_result,2)
-                        plot(vessel_result(:,stimi),'Color',[0,0,0,0.2])
+                    [vessel_trace,time] = WekaPlotter.unify_standardized_trace(vessel_result);
+                    for stimi = 1:size(vessel_trace,2)
+                        plot(time,vessel_trace(:,stimi),'Color',[0,0,0,0.2])
                     end
-                    mean_trace = mean(vessel_result');
+                    mean_trace = mean(vessel_trace');
                     all_mean_trace{end+1} = mean_trace;
-                    plot(mean_trace,'Color','red')
+                    plot(time,mean_trace,'Color','red')
 
                     [val,id] = max(mean_trace);
 %                     [pks,locs] = findpeaks(mean_trace,'MinPeakProminence',0.1);
 %                     post_stim = locs(locs>1000);
 %                     loci = post_stim(1);
-                    scatter(id,val,1000,'rx')
+                    scatter(time(id),val,1000,'rx')
                     hold off
                     title({[animali{1} ' ' vesseli{1}],['tau = ' num2str((id-1000)/100) ' s']})
                     ploti = ploti+1;
+%                     try
+%                         ylim([mean(mean_trace)-0.8*std(mean_trace),mean(mean_trace)+0.8*std(mean_trace)])
+%                     catch
+%                         ylim([0,3])
+%                     end
+                    ylim([0,2])
                 end
             end
        end
@@ -397,8 +439,9 @@ classdef WekaPlotter
             hold on
             ploti = 1;
             ncol = 4;
-            nrow = ceil(numel(stimi_result)/ncol);
-            tiledlayout(nrow,ncol, 'Padding', 'none', 'TileSpacing', 'compact'); 
+            max_row = 5;
+            nplot = ceil(numel(stimi_result)/ncol/max_row);
+            tiledlayout(max_row,ncol, 'Padding', 'none', 'TileSpacing', 'compact'); 
             for stimi = 1:numel(stimi_result)
                 resulti = stimi_result(stimi);
                 speedi = resulti.speed_standard*resulti.sign_change;
@@ -422,6 +465,7 @@ classdef WekaPlotter
                 name = split(name,'_');
                 name = strjoin(name,' ');
                 id = strfind(name,'vessel');
+                title(name)
 %                 [h,p] = ttest2(resulti.speed_pre_stim,resulti.speed_post_stim);
 %                 if isempty(id)
 %                     title(name)
@@ -436,6 +480,11 @@ classdef WekaPlotter
 %                         end
 %                     end
 %                 end
+                if ploti==20
+                    figure
+                    tiledlayout(max_row,ncol, 'Padding', 'none', 'TileSpacing', 'compact'); 
+                    ploti=1;
+                end
                 ploti = ploti+1;
             end
        end
@@ -462,17 +511,24 @@ classdef WekaPlotter
             hold off
        end
 
-       function standardized = unify_standardized_trace(stimi_result)
+       function [standardized,time] = unify_standardized_trace(stimi_result)
             offset = [stimi_result.mean_pre_stim];
             sign = [stimi_result.sign_change];
-            standardized = arrayfun(@(x) [x.filtered_speed_pre_stim' x.filtered_speed_post_stim']' , stimi_result,'UniformOutput',false);
-%             tuncated = cellfun(@(x) numel(x)<1700 ,standardized);
-%             standardized = standardized(~tuncated);
-            nsamples = min(cellfun(@numel ,standardized));
+            if size(stimi_result(1).filtered_speed_pre_stim,1)==1
+                standardized = arrayfun(@(x) [x.filtered_speed_pre_stim x.filtered_speed_post_stim]' , stimi_result,'UniformOutput',false);
+            else
+                standardized = arrayfun(@(x) [x.filtered_speed_pre_stim' x.filtered_speed_post_stim']' , stimi_result,'UniformOutput',false);
+            end
+            [nsamples,id] = min(cellfun(@numel ,standardized));
             standardized = cellfun(@(x) x(1:nsamples),standardized,'UniformOutput',false);
             standardized = cell2mat(standardized);
             standardized = standardized./sign;
-            standardized = standardized-offset./sign;
+%             standardized = standardized-offset./sign;
+            if size(stimi_result(1).filtered_speed_pre_stim,1)==1
+                time= [stimi_result(id).time_pre_stim_standard stimi_result(id).time_post_stim_standard];
+            else
+                time= [stimi_result(id).time_pre_stim_standard' stimi_result(id).time_post_stim_standard'];
+            end
        end
 
        function plot_average_filtered_response(stimi_result)

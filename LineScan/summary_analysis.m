@@ -1,11 +1,15 @@
-mat_root = "/net/dk-server/bholloway/Zhongkai/new_batch";
-weka_root = '/net/dk-server/bholloway/Zhongkai/controls_mask/';
+mat_root = "/net/dk-server/bholloway/Zhongkai/controls";
+weka_root = '/net/dk-server/bholloway/Zhongkai/fog_new_mask/';
+save_root = '/net/dk-server/bholloway/Zhongkai/group_results/';
 window_size_seconds = 10;
-offset_seconds = 1;
-all_results = WekaPlotter.parse_result_by_stimulation(weka_root,mat_root,offset_seconds,window_size_seconds);
+offset_seconds = 0;
+all_results = get_all_results(mat_root,weka_root,save_root,window_size_seconds,offset_seconds);
 power_variation = cellfun(@(x) contains(x,'Pack-081621_10-27-21')|contains(x,'Pack-071022_08-19-22'),{all_results.file_name});
 all_results = all_results(~power_variation);
-
+%%
+mat_root = "/net/dk-server/bholloway/Zhongkai/controls";
+save_root = '/net/dk-server/bholloway/Zhongkai/group_results/';
+all_results = get_all_results_radon(mat_root,save_root,window_size_seconds,offset_seconds);
 %%
 WekaPlotter.print_stimulation_counts(all_results)
 stimulationi = 100;
