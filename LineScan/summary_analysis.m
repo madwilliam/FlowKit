@@ -1,4 +1,4 @@
-mat_root = "/net/dk-server/bholloway/Zhongkai/controls";
+mat_root = "/net/dk-server/bholloway/Zhongkai/FoG";
 weka_root = '/net/dk-server/bholloway/Zhongkai/fog_new_mask/';
 save_root = '/net/dk-server/bholloway/Zhongkai/group_results/';
 window_size_seconds = 10;
@@ -7,7 +7,7 @@ all_results = get_all_results(mat_root,weka_root,save_root,window_size_seconds,o
 power_variation = cellfun(@(x) contains(x,'Pack-081621_10-27-21')|contains(x,'Pack-071022_08-19-22'),{all_results.file_name});
 all_results = all_results(~power_variation);
 %%
-mat_root = "/net/dk-server/bholloway/Zhongkai/controls";
+mat_root = "/net/dk-server/bholloway/Zhongkai/fog_divgauss";
 save_root = '/net/dk-server/bholloway/Zhongkai/group_results/';
 all_results = get_all_results_radon(mat_root,save_root,window_size_seconds,offset_seconds);
 %%

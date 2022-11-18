@@ -58,7 +58,7 @@ classdef WekaPlotter
             time = locations*mat.dt_ms/1000;
             time(time==inf)=0;
             [standardized,ty] =  resample(speed_um_ms,time,resample_frequency);
-            filtered = medfilt1(standardized,10);
+            filtered = medfilt1(standardized,20);
             n_stimulus = numel( mat.start_time );  
             results = [];
             for stimulusi=1:n_stimulus 
@@ -281,10 +281,13 @@ classdef WekaPlotter
                 animal_file = all_file_info(is_animal);
                 animal_result = stimi_result(is_animal);
                 for vesseli = unique({animal_file.vessel_id})
+                    if ploti==5
+                        disp('')
+                    end
                     is_vessel = arrayfun(@(x) strcmp(x.vessel_id,vesseli),animal_file);
                     vessel_file = animal_file(is_vessel);
                     vessel_result = animal_result(is_vessel);
-                    subplot(plots_per_row,nrows,ploti)
+                    %subplot(plots_per_row,nrows,ploti)
                     hold on 
                     traces = [];
                     [vessel_trace,time] = WekaPlotter.unify_standardized_trace(vessel_result);

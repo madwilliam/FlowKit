@@ -1,4 +1,5 @@
 classdef DataSimulator
+
    methods (Static)
        function zz=get_test_line_scan_data()
             spatial_freq=1;
@@ -57,6 +58,12 @@ classdef DataSimulator
                 img = insertShape(img, 'Line', [x1(i)+50, y1(i)+50, x2(i)+50, y2(i)+50], 'LineWidth', 10);
                 images{i} = img(:,:,1);
             end
+        end
+
+        function data = get_simulated_data_feed(counter)
+            data = DataSimulator.get_test_line_scan_data_chunk([counter*100,(counter+1)*100]);
+            data = reshape(data,[],1);
+            data = data+rand(size(data));
         end
 
    end

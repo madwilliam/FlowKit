@@ -1,7 +1,7 @@
 function result=get_slope_from_line_scan(radon_image,radon_window_size,radon_function)
     stepsize=floor(.25*radon_window_size);
     nsample = size(radon_image,2);
-    nsteps=floor(nsample/stepsize)-4;
+    nsteps=floor(nsample/stepsize)-3;
     result.locations=zeros(nsteps,1);
     result.slopes=zeros(nsteps,1);
     result.time=NaN*ones(nsteps,1);

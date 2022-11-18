@@ -16,9 +16,13 @@ classdef LineScanPanel < handle %& dynamicprops
        n_sample
        active
        counter
+       pause_time
+       start_y
+       end_y
    end
    methods
        function self = LineScanPanel(get_raw_data,nsample,npoints_to_display)
+          self.pause_time = 1;
           self.counter = 1;
           self.get_raw_data = get_raw_data;
           self.monitor = live_monitor;
@@ -39,11 +43,10 @@ classdef LineScanPanel < handle %& dynamicprops
                   disp('plotting')
                   self.update_live_panel()
               else
-%                   disp('stand by')
                   self.update_values();
                   self.start_live_panel();
               end
-              pause(1)
+              pause(self.pause_time)
           end
       end
       
@@ -61,8 +64,8 @@ classdef LineScanPanel < handle %& dynamicprops
             self.data_chunk = reshape(self.raw_data,self.n_pixel,[]);
             self.n_sample = size(self.data_chunk,2);
             self.data_chunk = self.data_chunk(self.data_range(1):self.data_range(2),:);
-            [slopes,time]=get_slope_from_line_scan(self.data_chunk,self.radon_chunk_size);
-            self.update_data(slopes,time)
+            result=get_slope_from_line_scan(self.data_chunk,self.radon_chunk_size,@max_and_variance_radon);
+            self.update_data(result.slopes,result.time)
             self.update_plot()
             self.counter = self.counter + 1;
       end
@@ -83,6 +86,9 @@ classdef LineScanPanel < handle %& dynamicprops
                 pixel_end = self.n_pixel;
             end
             self.data_range = [pixel_start pixel_end];
+            self.pause_time = 1/self.monitor.SamplingRateEditField.Value;
+            self.start_y = self.monitor.ystartEditField.Value;
+            self.end_y = self.monitor.yendEditField.Value;
         end
 
         function initialize_data_fields(self)
@@ -108,6 +114,7 @@ classdef LineScanPanel < handle %& dynamicprops
             imagesc(self.monitor.UIAxes_2,self.display_data,'XData', [0 0], 'YData', [0 0])
             xlim(self.monitor.UIAxes_2,[0,size(self.display_data,2)])
             ylim(self.monitor.UIAxes_2,[0,size(self.display_data,1)])
+            ylim(self.monitor.UIAxes,[self.start_y,self.end_y])
         end
    end
 end

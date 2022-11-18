@@ -1,5 +1,5 @@
-control_path = '/net/dk-server/bholloway/Zhongkai/group_results/controls_windowsize_10_offset_0.mat';
-fog_path = '/net/dk-server/bholloway/Zhongkai/group_results/fog_divgauss_windowsize_10_offset_0.mat';
+control_path = '/net/dk-server/bholloway/Zhongkai/group_results/controls_mask_windowsize_10_offset_0.mat';
+fog_path = '/net/dk-server/bholloway/Zhongkai/group_results/fog_new_mask_windowsize_10_offset_0.mat';
 unprocessed_path = '/net/dk-server/bholloway/Zhongkai/group_results/matlab_filtered_unprocessed_new_mask_windowsize_10_offset_0.mat';
 
 control = load(control_path,'all_results').all_results;
