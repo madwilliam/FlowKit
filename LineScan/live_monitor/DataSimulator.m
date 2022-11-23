@@ -46,6 +46,7 @@ classdef DataSimulator
             img = insertShape(img, 'Line', [x1+50, y1+50, x2+50, y2+50], 'LineWidth', 10);
             img = img(:,:,1);
             img = img+rand(size(img));
+            img = imcomplement(img);
        end
 
         function images = generate_radon_test(nsample)

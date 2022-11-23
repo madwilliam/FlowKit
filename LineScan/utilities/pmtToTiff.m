@@ -5,25 +5,24 @@ function pmtToTiff( pmt_files,meta_files, output_dir )
     parfor filei = 1:nfiles
         try
             file_name = shared_experiment(filei);
-            crop_tiff(file_name,pmt_files,meta_files, output_dir)
+            pmt_path = FileHandler.get_file_path(pmt_files,file_name);
+            meta_path = FileHandler.get_file_path(meta_files,file_name);
+            crop_tiff(file_name,pmt_path,meta_path, output_dir)
         catch ME
             log_error(file_name,ME,output_dir)
         end
     end
 end
 
-function crop_tiff(file_name,pmt_files,meta_files, output_dir)
+function crop_tiff(file_name,pmt_path,meta_path, output_dir)
     disp(append('cropping tiffs for ',file_name))
-    pmt_path = FileHandler.get_file_path(pmt_files,file_name);
-    meta_path = FileHandler.get_file_path(meta_files,file_name);
     [SI,RoiGroups] = parse_scan_image_meta(meta_path);
     total_pixels = SI.hScan2D.lineScanSamplesPerFrame;
-    n_channels = numel(SI.hChannels.channelSave);
     sampleRate = SI.hScan2D.sampleRate;
     [line_scans,line_scan_start] = MetaParser.get_all_line_scans(RoiGroups);
     nlines = numel(line_scans);
     channels=SI.hChannels.channelSave;
-    pmt = FileHandler.load_pmt_file(pmt_path,total_pixels,n_channels,1);
+    pmt = FileHandler.load_pmt(pmt_path,meta_path);
     for linei = 1:nlines
         line = line_scans(linei);
         scan_start = floor(line_scan_start(linei)*sampleRate)+1;
@@ -52,6 +51,7 @@ function crop_tiff(file_name,pmt_files,meta_files, output_dir)
         end
     end
 end
+
 function pmt_files = filter_small_files(pmt_files)
     pmt_sizes=[];    
     pmt_sizes = [pmt_sizes, pmt_files.bytes].';

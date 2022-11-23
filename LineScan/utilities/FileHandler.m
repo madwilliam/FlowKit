@@ -88,6 +88,13 @@ classdef FileHandler
            pmt=fread(fid,size,'*int16',(nchannels-1)*2);
        end
 
+       function pmt = load_pmt(pmt_path,meta_path)
+            [SI,~] = parse_scan_image_meta(meta_path);
+            total_pixels = SI.hScan2D.lineScanSamplesPerFrame;
+            n_channels = numel(SI.hChannels.channelSave);
+            pmt = FileHandler.load_pmt_file(pmt_path,total_pixels,n_channels,1);
+       end
+
       function stimulus = load_stimulus(pmt_files,file_name)
            pmt_file = FileHandler.get_file_path(pmt_files,file_name);
            fid=fopen(pmt_file,'r');
