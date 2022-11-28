@@ -23,8 +23,8 @@ classdef LiveRadonAnnalyzer < handle %& dynamicprops
        data_queue
    end
    methods
-       function self = LiveRadonAnnalyzer(get_raw_data,n_pixel,data_queue,radon_chunk_size,pixel_start,pixel_end, ...
-             nsample_to_show,sampling_rate)
+       function self = LiveRadonAnnalyzer(get_raw_data,n_pixel,sampling_rate,data_queue,radon_chunk_size,pixel_start,pixel_end, ...
+             nsample_to_show)
         if ~exist('data_queue')
             self.data_queue=[];
         else
@@ -55,7 +55,6 @@ classdef LiveRadonAnnalyzer < handle %& dynamicprops
         else
             self.pause_time = 1/sampling_rate;
         end
-        self.pause_time = 1;
         self.counter = 1;
         self.get_raw_data = get_raw_data;
         self.active = false;
