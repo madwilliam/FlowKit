@@ -43,7 +43,7 @@ function adjust_window_size(out_dir)
                            mat_files = FileHandler.get_mat_files(out_dir);
                            file_name = FileHandler.strip_extensions(names{end});
                            job = createJob(cluster);
-                           task = createTask(job,@analyze_file,0,{file_name,tif_files,mat_files,last_window});
+                           task = createTask(job,@analyze_file_with_radon,0,{file_name,tif_files,mat_files,last_window});
                            tasks = [tasks,task];
                            submit(job);
                            disp(append('file reanalyzed with window size: ', num2str(figure_info)))
