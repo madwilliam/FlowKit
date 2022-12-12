@@ -6,4 +6,4 @@ back_plot_from_mat(mat_file,[1 100])
 %or
 load(mat_path,'result','tif_file')
 image = FileHandler.load_image_data(tif_path);
-Plotter.plot_detected_stripes(image,result,1:1000)
+RadonBackPlotter.plot_detected_stripes(image,result,1:1000)

@@ -5,6 +5,31 @@ classdef FileHandler
            meta_files = dir(strcat(path,'/**/*.meta.txt'));
        end
 
+       function common_names = find_experiment_names_in_folder(directory)
+            mat_files = FileHandler.get_mat_files(directory);
+            pmt_files = FileHandler.get_pmt_files(directory);
+            meta_files = FileHandler.get_meta_files(directory);
+            mat_names = {mat_files.name};
+            mat_names = cellfun(@FileHandler.strip_extensions,mat_names,'UniformOutput',false);
+            mat_names = cellfun(@(x) x(1:end-5),mat_names,'UniformOutput',false);
+            pmt_names = {pmt_files.name};
+            meta_names = {meta_files.name};
+            meta_names = cellfun(@FileHandler.strip_extensions,meta_names,'UniformOutput',false);
+            pmt_names = cellfun(@FileHandler.strip_extensions,pmt_names,'UniformOutput',false);
+            common_names = intersect( mat_names,pmt_names);
+            common_names = intersect( common_names,meta_names);
+       end
+
+       function common_names = find_experiment_names_in_analysis_folder(directory)
+            mat_files = FileHandler.get_mat_files(directory);
+            tif_files = FileHandler.get_tif_files(directory);
+            mat_names = {mat_files.name};
+            mat_names = cellfun(@FileHandler.strip_extensions,mat_names,'UniformOutput',false);
+            tif_names = {tif_files.name};
+            tif_names = cellfun(@FileHandler.strip_extensions,tif_names,'UniformOutput',false);
+            common_names = intersect( mat_names,tif_names);
+       end
+
        function pmt_file = get_pmt_files(path)
            pmt_file = dir(strcat(path,'/**/*.pmt.dat'));
        end

@@ -51,7 +51,7 @@ function adjust_window_size(out_dir)
                            break
                        end
                    otherwise
-                       Plotter.plot_with_window_size(result,start_time,end_time,tif_path,window_size,figure_info)
+                       RadonBackPlotter.plot_with_window_size(result,start_time,end_time,tif_path,window_size,figure_info)
                        pause(0.01)
                        last_window = window_size;
                        window_size = input(['Enter window size to try, ' ...

@@ -10,7 +10,7 @@ classdef RadonAnnalyzer
         self.radon_function = radon_function;
       end
 
-      function result=get_slope_from_line_scan(self,radon_image)
+      function result=get_slope_from_line_scan(self,radon_image,varargin)
             stepsize=floor(self.step_factor*self.radon_window_size);
             nsample = size(radon_image,2);
             nsteps=floor(nsample/stepsize)-3;
@@ -22,9 +22,9 @@ classdef RadonAnnalyzer
                 result.time(k)=1+(k-1)*stepsize+self.radon_window_size/2;
                 data_chunk=radon_image(:,1+(k-1)*stepsize:(k-1)*stepsize+self.radon_window_size);
                 data_chunk = preprocess_data(data_chunk);
-                [theta,radius,~] = self.radon_function(data_chunk,1:179);
+                [theta,radius,~] = self.radon_function(data_chunk,1:179,varargin{:});
                 if numel(radius)>0
-                    [slopes,locations] = get_slope_and_location(radius,theta,size(data_chunk));
+                    [slopes,~,locations] = RadonTools.get_slope_intercept_and_location(radius,theta,size(data_chunk));
                     result.slopes = [result.slopes slopes];
                     result.locations = [result.locations locations+1+(k-1)*stepsize];
                 end

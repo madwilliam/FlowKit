@@ -15,7 +15,7 @@ function result=get_slope_from_line_scan(radon_image,radon_window_size,radon_fun
         data_chunk=radon_image(:,1+(k-1)*stepsize:(k-1)*stepsize+radon_window_size);
         data_chunk = preprocess_data(data_chunk);
         [theta,radius,~] = radon_function(data_chunk,1:179);
-        [result.slopes(k),result.locations(k),~]= get_slope_and_location(radius,theta,size(data_chunk));
+        [result.slopes(k),~,result.locations(k)]= RadonTools.get_slope_intercept_and_location(radius,theta,size(data_chunk));
         result.locations(k) = result.locations(k)+1+(k-1)*stepsize;
     end
 end

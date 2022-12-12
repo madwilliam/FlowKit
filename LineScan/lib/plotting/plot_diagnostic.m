@@ -14,10 +14,10 @@ function plot_diagnostic(data_chunk)
     ax2 = subplot(nplot, 1,2);
     ax3 = subplot(nplot, 1,3);
     if ~isnan(result.slopes)
-        [~,intercept] = RadonTools.get_slope_and_intercept(radius(max_radius_id),angles(theta),size(preprocessed));
-        Plotter.plot_line(preprocessed,1:size(preprocessed,2),result.slopes,intercept,ax1)
-%         Plotter.plot_line(data_chunk,1:size(preprocessed,2),result.slopes,intercept,ax4)
-        Plotter.plot_radon(R,flip(max_R_id),ax2)
+        [~,intercept] = RadonTools.get_slope_intercept_and_location(radius(max_radius_id),angles(theta),size(preprocessed));
+        RadonBackPlotter.plot_line(preprocessed,1:size(preprocessed,2),result.slopes,intercept,ax1)
+%         RadonBackPlotter.plot_line(data_chunk,1:size(preprocessed,2),result.slopes,intercept,ax4)
+        RadonBackPlotter.plot_radon(R,flip(max_R_id),ax2)
         plot(ax3,R(:,max_theta_id))
         title(ax3,['kurtosis = ' num2str(kurtosis(R(:,max_theta_id))) 'var = ' num2str(var(R(:,max_theta_id)))])
     else

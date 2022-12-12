@@ -26,7 +26,7 @@ function [slopes,time,locations,rval]=get_slope_from_line_scan(data,windowsize,a
 
         data_chunk = preprocess_data(data_chunk);%,ax4,ax5);
         [theta,radius,max_val] = two_step_radon(data_chunk,angles_to_detect);%,ax1,ax2);
-        [slopes(k),locations(k),intercept]= get_slope_and_location(radius,theta,size(data_chunk));
+        [slopes(k),intercept,locations(k)]= RadonTools.get_slope_intercept_and_location(radius,theta,size(data_chunk));
         slope = slopes(k);
         x = 1:size(data_chunk,2);
         y=slope*x+intercept;
@@ -93,12 +93,4 @@ function max_variance_theta= get_max_variance_minus_kurtosis_angle(R,angles_to_d
    else
        max_variance_theta = NaN;
    end
-end
-
-function [slope,location,intercept]= get_slope_and_location(max_r,max_theta,image_size)
-    slope = 1/tand(max_theta);
-    image_center = image_size ./ 2 - 0.5;
-    local_max_center_xy = image_center([2,1]) + [cosd(max_theta), -sind(max_theta)] .* max_r;
-    intercept = local_max_center_xy(2)-slope .* local_max_center_xy(1);
-    location = (image_center(2)-intercept)/slope;
 end

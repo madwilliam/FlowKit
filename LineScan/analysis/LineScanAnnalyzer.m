@@ -49,7 +49,7 @@ classdef LineScanAnnalyzer < handle %& dynamicprops
           hold(self.panel.UIAxes_2,'off')
           hold(self.panel.UIAxes,'on')
           imagesc(self.panel.UIAxes,self.data,'XData', [0 0], 'YData', [0 0])
-          Plotter.plot_stripes_on_image(self.panel.UIAxes,result.locations,result.slopes,self.n_pixel,self.n_sample)
+          RadonBackPlotter.plot_stripes_on_image(self.panel.UIAxes,result.locations,result.slopes,self.n_pixel,self.n_sample)
           hold(self.panel.UIAxes,'off')
           stepsize = 0.25*self.radon_chunk_size;
           self.k = self.panel.ChunkToExamineEditField.Value;

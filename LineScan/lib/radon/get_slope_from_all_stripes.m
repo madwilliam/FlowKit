@@ -12,7 +12,7 @@ function [all_slopes,all_locations]=get_slope_from_all_stripes(data,windowsize,a
         data_chunk=data(:,1+(k-1)*windowsize:k*windowsize);
         data_chunk = preprocess_data(data_chunk);
         [theta,radius,ax1] = two_step_radon(data_chunk,angles_to_detect);
-        [slopes,locations]= get_slope_and_location(radius,theta,size(data_chunk));
+        [slopes,~,locations]= RadonTools.get_slope_intercept_and_location(radius,theta,size(data_chunk));
         nlines = numel(locations);
         x = 1:size(data_chunk,2);
         hold(ax1,'on')
@@ -80,7 +80,7 @@ function max_variance_theta= get_max_variance_angle(R,angles_to_detect)
    max_variance_theta=angles_to_detect(max_variance_di);  
 end
 
-function [slope,location ]= get_slope_and_location(radius,theta,image_size)
+function [slope,~,location ]= RadonTools.get_slope_intercept_and_location(radius,theta,image_size)
     nstripes = numel(radius);
     slope = zeros(nstripes,1);
     location = zeros(nstripes,1);

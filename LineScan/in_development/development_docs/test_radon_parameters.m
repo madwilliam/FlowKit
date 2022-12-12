@@ -101,7 +101,7 @@ function visualize_result(data_chunk,R,result,local_max,range_of_angles_to_detec
         plot(ax1, xrange, line_y, '-.k', 'LineWidth', 2);
         scatter(ax2, local_max.sub(extremai,2), local_max.sub(extremai,1), 'rx');
     end
-    Plotter.plot_standard_deviation(range_of_angles_to_detect,result.r_std_vs_theta,ax3)
+    RadonBackPlotter.plot_standard_deviation(range_of_angles_to_detect,result.r_std_vs_theta,ax3)
     xlim(ax1,[1 size(data_chunk,2)])
     ylim(ax1,[1 size(data_chunk,1)])
     set(ax1,'YDir','normal')

@@ -10,15 +10,15 @@ function plot_diagnostic(data_chunk)
     max_theta_id = 144;
     [~,max_radius_id] = max(R(:,max_theta_id));
     max_R_id = [max_radius_id,theta];
-    [~,intercept] = RadonTools.get_slope_and_intercept(radius(max_radius_id),angles(theta),size(data_chunk));
+    [~,intercept] = RadonTools.get_slope_intercept_and_location(radius(max_radius_id),angles(theta),size(data_chunk));
     nplot = 3; 
     figure
     ax1 = subplot(nplot, 1,1);
     ax2 = subplot(nplot, 1,2);
     ax3 = subplot(nplot, 1,3);
     slope = 1/tand(angles(max_theta_id));
-    Plotter.plot_line(data_chunk,1:size(data_chunk,2),slope,intercept,ax1)
-    Plotter.plot_radon(R,flip(max_R_id),ax2)
+    RadonBackPlotter.plot_line(data_chunk,1:size(data_chunk,2),slope,intercept,ax1)
+    RadonBackPlotter.plot_radon(R,flip(max_R_id),ax2)
     plot(ax3,R(:,max_theta_id))
     set(ax1,'YDir','normal')
     set(ax2,'YDir','normal')

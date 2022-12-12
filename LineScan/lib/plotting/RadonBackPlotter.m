@@ -1,4 +1,4 @@
-classdef Plotter
+classdef RadonBackPlotter
    methods (Static)
        function plot_line(array,xrange,slope,intercept,ax)
         imagesc(ax, array);
@@ -55,7 +55,7 @@ classdef Plotter
             locations = radon_result.locations(slope_time_points)-start_and_stop_image(1)+1;
             time = radon_result.time(slope_time_points);
             slopes = radon_result.slopes(slope_time_points);
-            Plotter.plot_stripes_on_image(ax1,locations,slopes,size(image_chunk,1),size(image_chunk,2))
+            RadonBackPlotter.plot_stripes_on_image(ax1,locations,slopes,size(image_chunk,1),size(image_chunk,2))
             plot(ax2,time,slopes)
             ylim(ax1,[1,size(image_chunk,1)])
             xlim(ax1,[1,size(image_chunk,2)])
@@ -70,7 +70,7 @@ classdef Plotter
                imwrite(img, append(save_path,'_stimulation',num2str(stimulationi),'.png'));
                close(gcf)
            end
-           Plotter.show_flow_speed_around_stimulation(mat_path,tif_path,@save_figure)
+           RadonBackPlotter.show_flow_speed_around_stimulation(mat_path,tif_path,@save_figure)
        end
 
        function save_flow_speed_around_stimulation_weka(mat_path,tif_path,weka_mat_path,save_path)
@@ -81,7 +81,7 @@ classdef Plotter
                imwrite(img, append(save_path,'_stimulation',num2str(stimulationi),'.png'));
                close(gcf)
            end
-           Plotter.show_flow_speed_around_stimulation_weka(mat_path,tif_path,weka_mat_path,@save_figure)
+           RadonBackPlotter.show_flow_speed_around_stimulation_weka(mat_path,tif_path,weka_mat_path,@save_figure)
        end
         
        function show_flow_speed_around_stimulation(mat_path,tif_path,save_function)
@@ -93,7 +93,7 @@ classdef Plotter
            end
            load(mat_path,'result','start_time','end_time');
            image = FileHandler.load_image_data(tif_path);
-           Plotter.plot_stipes_for_all_stimulation(image,start_time,end_time,result,show_plot,save_function,@Plotter.get_plotting_information)
+           RadonBackPlotter.plot_stipes_for_all_stimulation(image,start_time,end_time,result,show_plot,save_function,@RadonBackPlotter.get_plotting_information)
        end
 
        function show_flow_speed_around_stimulation_weka(mat_path,tif_path,weka_mat_path,save_function)
@@ -106,7 +106,7 @@ classdef Plotter
            load(mat_path,'start_time','end_time');
            load(weka_mat_path,'stripe_statistics');
            image = FileHandler.load_image_data(tif_path);
-           Plotter.plot_stipes_for_all_stimulation(image,start_time,end_time,stripe_statistics,show_plot,save_function,@Plotter.get_plotting_information_weka)
+           RadonBackPlotter.plot_stipes_for_all_stimulation(image,start_time,end_time,stripe_statistics,show_plot,save_function,@RadonBackPlotter.get_plotting_information_weka)
         end
         
         function plot_stipes_for_all_stimulation(image,start_time,end_time,...
@@ -120,7 +120,7 @@ classdef Plotter
                end_timei = end_time(stimulationi);
                [imagers,all_slopes,all_locations] = get_image_slope_and_location(image,...
                    start_timei,end_timei,chunk_offset,chunk_length,result,down_sampling_factor);
-               Plotter.plot_strips(imagers,all_locations,all_slopes,start_timei,...
+               RadonBackPlotter.plot_strips(imagers,all_locations,all_slopes,start_timei,...
                    end_timei,chunk_offset,chunk_length,down_sampling_factor,show_plot)
                if isa(save_function,'function_handle')
                    save_function(stimulationi);
@@ -130,14 +130,14 @@ classdef Plotter
 
        function [imagers,all_slopes,all_locations] = get_plotting_information(image,...
                start_timei,end_timei,chunk_offset,chunk_length,result,down_sampling_factor)
-            imagers = Plotter.get_donsampled_image(image,start_timei,end_timei,chunk_offset,down_sampling_factor);
-            [all_slopes,all_locations] = Plotter.parse_slopes_and_locations_radon(chunk_length,result,down_sampling_factor,start_timei,end_timei,chunk_offset);
+            imagers = RadonBackPlotter.get_donsampled_image(image,start_timei,end_timei,chunk_offset,down_sampling_factor);
+            [all_slopes,all_locations] = RadonBackPlotter.parse_slopes_and_locations_radon(chunk_length,result,down_sampling_factor,start_timei,end_timei,chunk_offset);
        end
        
        function [imagers,all_slopes,all_locations] = get_plotting_information_weka(image,...
                start_timei,end_timei,chunk_offset,chunk_length,result,down_sampling_factor)
-            imagers = Plotter.get_donsampled_image(image,start_timei,end_timei,chunk_offset,down_sampling_factor);
-            [all_slopes,all_locations] = Plotter.parse_slopes_and_locations_weka(chunk_length,result,down_sampling_factor,start_timei,end_timei,chunk_offset);
+            imagers = RadonBackPlotter.get_donsampled_image(image,start_timei,end_timei,chunk_offset,down_sampling_factor);
+            [all_slopes,all_locations] = RadonBackPlotter.parse_slopes_and_locations_weka(chunk_length,result,down_sampling_factor,start_timei,end_timei,chunk_offset);
        end
 
        function [all_slopes,all_locations] = parse_slopes_and_locations(chunk_length,result,down_sampling_factor,...
@@ -158,11 +158,11 @@ classdef Plotter
        end
 
        function [all_slopes,all_locations] = parse_slopes_and_locations_radon(chunk_length,result,down_sampling_factor,start_timei,end_timei,chunk_offset)
-           [all_slopes,all_locations] = Plotter.parse_slopes_and_locations(chunk_length,result,down_sampling_factor,start_timei,end_timei,chunk_offset,@Plotter.get_location_and_slopes_radon);
+           [all_slopes,all_locations] = RadonBackPlotter.parse_slopes_and_locations(chunk_length,result,down_sampling_factor,start_timei,end_timei,chunk_offset,@RadonBackPlotter.get_location_and_slopes_radon);
        end
 
        function [all_slopes,all_locations] = parse_slopes_and_locations_weka(chunk_length,result,down_sampling_factor,start_timei,end_timei,chunk_offset)
-            [all_slopes,all_locations] = Plotter.parse_slopes_and_locations(chunk_length,result,down_sampling_factor,start_timei,end_timei,chunk_offset,@Plotter.get_location_and_slopes_weka);
+            [all_slopes,all_locations] = RadonBackPlotter.parse_slopes_and_locations(chunk_length,result,down_sampling_factor,start_timei,end_timei,chunk_offset,@RadonBackPlotter.get_location_and_slopes_weka);
        end
 
        function [locations,slopes] = get_location_and_slopes_radon(result,start_image,end_image,stimulus_chunk_start,stimulus_chunk_end,down_sampling_factor,pointer)
@@ -209,14 +209,14 @@ classdef Plotter
                end_timei = end_time(stimulationi);
                chunk_offset = 15000;
                chunk_length = 1000;
-               [imagers,stimulus_image] = Plotter.get_donsampled_image(image,...
+               [imagers,stimulus_image] = RadonBackPlotter.get_donsampled_image(image,...
                    start_timei,end_timei,chunk_offset,down_sampling_factor);
                if isnan(window_size)
-                   [all_slopes,all_locations] = Plotter.parse_slopes_and_locations_radon(chunk_length,result,down_sampling_factor,start_timei,end_timei,chunk_offset);
+                   [all_slopes,all_locations] = RadonBackPlotter.parse_slopes_and_locations_radon(chunk_length,result,down_sampling_factor,start_timei,end_timei,chunk_offset);
                else
-                   [all_slopes,all_locations] = Plotter.recalculate_slope_and_location(stimulus_image,window_size,down_sampling_factor,chunk_length);
+                   [all_slopes,all_locations] = RadonBackPlotter.recalculate_slope_and_location(stimulus_image,window_size,down_sampling_factor,chunk_length);
                end
-               Plotter.plot_strips(imagers,all_locations,all_slopes,start_timei,end_timei,chunk_offset,chunk_length,down_sampling_factor,true,title)
+               RadonBackPlotter.plot_strips(imagers,all_locations,all_slopes,start_timei,end_timei,chunk_offset,chunk_length,down_sampling_factor,true,title)
            end
        end
 
@@ -269,8 +269,8 @@ classdef Plotter
                [npixels,nframes] = size(image_chunk);
                imagesc(axes(i),image_chunk)
                set(gca,'XTick',[])
-               Plotter.plot_stripes_on_image(axes(i),locations{i},slopes{i},npixels,nframes)
-               Plotter.plot_stimulus_start_and_stop(axes(i),fig_chunk_start,...
+               RadonBackPlotter.plot_stripes_on_image(axes(i),locations{i},slopes{i},npixels,nframes)
+               RadonBackPlotter.plot_stimulus_start_and_stop(axes(i),fig_chunk_start,...
                fig_chunk_end,pointer,chunk_length,npixels,nframes);
                hold(axes(i),'off')
                ylim(axes(i),[1,size(image_chunk,1)])
@@ -307,8 +307,8 @@ classdef Plotter
 
        function plot_speed(axis,start_image,end_image,mat_path,chunk_length,npixels)
            load(mat_path,'speed');
-           start_speed = Plotter.image_to_speed_coordinates(start_image,mat_path);
-           end_speed = Plotter.image_to_speed_coordinates(end_image,mat_path);
+           start_speed = RadonBackPlotter.image_to_speed_coordinates(start_image,mat_path);
+           end_speed = RadonBackPlotter.image_to_speed_coordinates(end_image,mat_path);
            speed_time = linspace(1,chunk_length,(end_speed-start_speed+1));
            plot(axis,speed_time,speed(1,start_speed:end_speed)+floor(npixels/2),'r')
        end

@@ -7,9 +7,8 @@ all_results = get_all_results(mat_root,weka_root,save_root,window_size_seconds,o
 power_variation = cellfun(@(x) contains(x,'Pack-081621_10-27-21')|contains(x,'Pack-071022_08-19-22'),{all_results.file_name});
 all_results = all_results(~power_variation);
 %%
-mat_root = "/net/dk-server/bholloway/Zhongkai/FoG";
+mat_root = "/net/dk-server/bholloway/Zhongkai/Pack-100322 Tifs and Mats new radon";
 save_root = '/net/dk-server/bholloway/Zhongkai/group_results/';
-% all_results = get_all_results_radon(mat_root,save_root,window_size_seconds,offset_seconds);
 all_results = WekaPlotter.parse_result_by_stimulation_radon(mat_root,offset_seconds,window_size_seconds);
 %%
 WekaPlotter.print_stimulation_counts(all_results)

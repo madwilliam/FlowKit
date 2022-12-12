@@ -25,11 +25,26 @@ classdef RadonTools
         local_max_center_xy = image_center([2,1]) + [cosd(max_theta), -sind(max_theta)] .* max_r;
     end
     
-    function [slope,intercept] = get_slope_and_intercept(max_r,max_theta,image_size)
+    function [slope,intercept,location] = get_slope_intercept_and_location(max_r,max_theta,image_size)
         image_center = image_size ./ 2 - 0.5;
-        local_max_center_xy = image_center([2,1]) + [cosd(max_theta), -sind(max_theta)] .* max_r;
+        assert(numel(max_r)==numel(max_theta))
+        n_lines = numel(max_r);
+        slope = [];
+        intercept = [];
+        location = [];
+        for i = 1:n_lines
+            [slopei,intercepti,locationi] = RadonTools.get_single_slope_intercept_and_location(max_r(i),max_theta(i),image_center);
+            slope = [slope slopei];
+            intercept = [intercept intercepti];
+            location = [location locationi];
+        end
+    end
+
+    function [slope,intercept,location] = get_single_slope_intercept_and_location(max_r,max_theta,image_center)
+        local_max_center_xy = image_center([2,1]) + [cosd(max_theta)', -sind(max_theta)']' .* max_r;
         slope = 1 ./ tand(max_theta);
         intercept = local_max_center_xy(2)-slope .* local_max_center_xy(1);
+        location = (image_center(1)-intercept)./slope;
     end
 
     function visualize_result(ax1,ax2,data_chunk,R,local_max_index,local_max_r_and_theta)
@@ -45,7 +60,7 @@ classdef RadonTools
         for extremai = 1:size(local_max_index,1)
             pointi = local_max_index(extremai,:);
             r_and_theta = local_max_r_and_theta(extremai,:);
-            [slope,intercept] = RadonTools.get_slope_and_intercept(r_and_theta(1),r_and_theta(2),size(data_chunk));
+            [slope,intercept] = RadonTools.get_slope_intercept_and_location(r_and_theta(1),r_and_theta(2),size(data_chunk));
             xrange = 1:size(data_chunk,2);
             line_y = intercept + slope .* xrange;
             plot(ax1, xrange, line_y, '-.k', 'LineWidth', 2);

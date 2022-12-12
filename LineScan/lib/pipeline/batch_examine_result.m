@@ -11,7 +11,7 @@ parfor filei = 1:nfiles
         mat_path = FileHandler.get_file_path(mat_files,file_name);
         tif_path = FileHandler.get_file_path(tif_files,file_name);
         save_path = fullfile(figure_dir,append(file_name));
-        Plotter.save_flow_speed_around_stimulation(mat_path,tif_path,save_path)
+        RadonBackPlotter.save_flow_speed_around_stimulation(mat_path,tif_path,save_path)
     catch
         disp(file_name)
     end
