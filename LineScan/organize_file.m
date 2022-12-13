@@ -12,49 +12,51 @@ pmt_names = cellfun(@FileHandler.strip_extensions,pmt_names,'UniformOutput',fals
 common_names = intersect( mat_names,pmt_names);
 common_names = intersect( common_names,meta_names);
 %%
-for namei = common_names
+nfiles = numel(common_names);
+parfor fi = 1:nfiles 
+    namei = common_names(fi);
      try
         target_pmt = cellfun(@(x) contains(x,namei),pmt_names);
-        target_mat = cellfun(@(x) contains(x,namei),mat_names);
-        if sum(target_pmt)>1 && sum(target_mat)>1
+        target_meta = cellfun(@(x) contains(x,namei),meta_names);
+        if sum(target_pmt)>1 && sum(target_meta)>1
             for i = find(target_pmt)
                 pmt_file = pmt_files(i);
-                mat_file_id = cellfun(@(x) strcmp(pmt_file.folder,x),{mat_file.folder});
-                mat_file = mat_files(target_mat);
-                mat_file = mat_file(mat_file_id);
-                if isempty(mat_file)
+                mat_file_id = cellfun(@(x) strcmp(pmt_file.folder,x),{meta_file.folder});
+                meta_file = meta_files(target_meta);
+                meta_file = meta_file(mat_file_id);
+                if isempty(meta_file)
                     continue
                 end
-                move_file(pmt_file,mat_file,namei)
+                analyze_file(pmt_file,meta_file,namei);
             end
-        elseif sum(target_pmt)==1 && sum(target_mat)>1
+        elseif sum(target_pmt)==1 && sum(target_meta)>1
             pmt_file = pmt_files(target_pmt);
-            mat_file_id = cellfun(@(x) strcmp(pmt_file.folder,x),{mat_file.folder});
-            mat_file = mat_files(target_mat);
-            mat_file = mat_file(mat_file_id);
-            if isempty(mat_file)
+            mat_file_id = cellfun(@(x) strcmp(pmt_file.folder,x),{meta_file.folder});
+            meta_file = meta_files(target_meta);
+            meta_file = meta_file(mat_file_id);
+            if isempty(meta_file)
                 continue
             end
-            move_file(pmt_file,mat_file,namei)
-        elseif sum(target_pmt)>1 && sum(target_mat)==1
+            analyze_file(pmt_file,meta_file,namei);
+        elseif sum(target_pmt)>1 && sum(target_meta)==1
             for i = find(target_pmt)
                 pmt_file = pmt_files(i);
-                mat_file_id = cellfun(@(x) strcmp(pmt_file.folder,x),{mat_file.folder});
-                mat_file = mat_files(target_mat);
-                mat_file = mat_file(mat_file_id);
-                if isempty(mat_file)
+                mat_file_id = cellfun(@(x) strcmp(pmt_file.folder,x),{meta_file.folder});
+                meta_file = meta_files(target_meta);
+                meta_file = meta_file(mat_file_id);
+                if isempty(meta_file)
                     continue
                 end
-                move_file(pmt_file,mat_file,namei)
+                analyze_file(pmt_file,meta_file,namei);
             end
         else
             pmt_file = pmt_files(target_pmt);
-            mat_file = mat_files(target_mat);
-            if ~strcmp(pmt_file.folder,mat_file.folder)
+            meta_file = meta_files(target_meta);
+            if ~strcmp(pmt_file.folder,meta_file.folder)
                 continue
             end
             
-            move_file(pmt_file,mat_file,namei);
+            analyze_file(pmt_file,meta_file,namei);
         end
     catch ME
         log_error(namei{1},ME,directory);
