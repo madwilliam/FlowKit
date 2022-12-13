@@ -13,7 +13,7 @@ common_names = intersect( mat_names,pmt_names);
 common_names = intersect( common_names,meta_names);
 %%
 nfiles = numel(common_names);
-parfor fi = 1:nfiles 
+for fi = 1:nfiles 
     namei = common_names(fi);
      try
         target_pmt = cellfun(@(x) contains(x,namei),pmt_names);

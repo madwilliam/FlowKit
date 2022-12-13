@@ -7,5 +7,8 @@ function analyze_file(pmt_file,meta_file,namei)
     output_dir = fullfile(save_path,animal_name);
     pmt_path = fullfile(pmt_file.folder,pmt_file.name);
     meta_path = fullfile(meta_file.folder,meta_file.name);
+    if ~exist(output_dir)
+        mkdir(output_dir)
+    end
     crop_tiff(namei,pmt_path,meta_path, output_dir)
 end
