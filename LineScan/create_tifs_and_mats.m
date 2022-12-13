@@ -1,4 +1,5 @@
 directory = '/net/dk-server/bholloway/Data and Analysis/';
+save_path = '/net/dk-server/bholloway/Data and Analysis/Analysis/Two Photon Analysis/TIFs_and_MATs';
 mat_files = FileHandler.get_mat_files(directory);
 pmt_files = FileHandler.get_pmt_files(directory);
 meta_files = FileHandler.get_meta_files(directory);
@@ -27,7 +28,7 @@ for fi = 1:nfiles
                 if isempty(meta_file)
                     continue
                 end
-                analyze_file(pmt_file,meta_file,namei);
+                analyze_file(save_path,pmt_file,meta_file,namei);
             end
         elseif sum(target_pmt)==1 && sum(target_meta)>1
             pmt_file = pmt_files(target_pmt);
@@ -37,7 +38,7 @@ for fi = 1:nfiles
             if isempty(meta_file)
                 continue
             end
-            analyze_file(pmt_file,meta_file,namei);
+            analyze_file(save_path,pmt_file,meta_file,namei);
         elseif sum(target_pmt)>1 && sum(target_meta)==1
             for i = find(target_pmt)
                 pmt_file = pmt_files(i);
@@ -47,7 +48,7 @@ for fi = 1:nfiles
                 if isempty(meta_file)
                     continue
                 end
-                analyze_file(pmt_file,meta_file,namei);
+                analyze_file(save_path,pmt_file,meta_file,namei);
             end
         else
             pmt_file = pmt_files(target_pmt);
@@ -56,7 +57,7 @@ for fi = 1:nfiles
                 continue
             end
             
-            analyze_file(pmt_file,meta_file,namei);
+            analyze_file(save_path,pmt_file,meta_file,namei);
         end
     catch ME
         log_error(namei{1},ME,directory);

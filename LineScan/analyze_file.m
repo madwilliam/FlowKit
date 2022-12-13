@@ -1,5 +1,4 @@
-function analyze_file(pmt_file,meta_file,namei)
-    save_path = '/net/dk-server/bholloway/Data and Analysis/Analysis/Two Photon Analysis/TIFs_and_MATs';
+function analyze_file(save_path,pmt_file,meta_file,namei)
     result = split(pmt_file.folder,'/CBF/');
     result = result{2};
     result = split(result,filesep);
