@@ -1,8 +1,8 @@
 function result=get_slope_from_line_scan(radon_image,radon_window_size,radon_function,step_factor)
-    if exist('step_factor','var') == 1
+    if exist('step_factor','var') == 0
         step_factor=0.25;
     end
-    stepsize=floor(step_factor*radon_window_size);
+    stepsize=ceil(step_factor*radon_window_size);
     nsample = size(radon_image,2);
     nsteps=floor(nsample/stepsize)-3;
     result.locations=zeros(nsteps,1);

@@ -6,6 +6,10 @@ pmtToTiff( pmt_files, meta_files, out_dir );
 update_start_and_end_time( pmt_files, meta_files, out_dir );
 % % annalyzer = RadonAnnalyzer(@two_step_radon,0.25);
 % % annalyzer.run_batch_radon_analysis(out_dir);
-annalyzer = RadonAnnalyzer(@roi_radon,1);
+annalyzer = RadonAnnalyzer(@two_step_radon,1);
+image_data = rand(37,1000);
+annalyzer.radon_window_size=100;
+annalyzer.get_slope_from_line_scan(image_data)
 annalyzer.run_batch_radon_analysis(out_dir);
 
+[theta_fine,radius,max_val] = two_step_radon(data_chunk,angles_to_detect)

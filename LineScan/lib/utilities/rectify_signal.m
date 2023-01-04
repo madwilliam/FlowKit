@@ -1,10 +1,15 @@
 function rectified_signal = rectify_signal(signal,nstd)
+    signal(signal==0)=nan;
     jumps = diff(signal);
     jumps(isnan(jumps))=0;
     mean_jump = mean(jumps(~isinf(jumps)));
     std_jump = std(jumps(~isinf(jumps)));
     big_jumps = arrayfun(@(x) x>mean_jump+nstd*std_jump || x<mean_jump-nstd*std_jump,jumps);
     rectified_signal = signal;
+    if ~any(big_jumps)
+        rectified_signal = signal;
+        return
+    end
     [start_time,end_time] = find_event_start_and_end_time(big_jumps);
     for i = 1:numel(start_time)
         starti = start_time(i);

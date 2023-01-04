@@ -21,7 +21,7 @@ classdef RadonAnnalyzer
             for k=1:nsteps
                 result.time(k)=1+(k-1)*stepsize+self.radon_window_size/2;
                 data_chunk=radon_image(:,1+(k-1)*stepsize:(k-1)*stepsize+self.radon_window_size);
-                data_chunk = preprocess_data(data_chunk);
+%                 data_chunk = preprocess_data(data_chunk);
                 [theta,radius,~] = self.radon_function(data_chunk,1:179,varargin{:});
                 if numel(radius)>0
                     [slopes,~,locations] = RadonTools.get_slope_intercept_and_location(radius,theta,size(data_chunk));
