@@ -1,0 +1,13 @@
+function analyze_file(save_path,pmt_file,meta_file,namei)
+    result = split(pmt_file.folder,'/CBF/');
+    result = result{2};
+    result = split(result,filesep);
+    animal_name = result{1};
+    output_dir = fullfile(save_path,animal_name);
+    pmt_path = fullfile(pmt_file.folder,pmt_file.name);
+    meta_path = fullfile(meta_file.folder,meta_file.name);
+    if ~exist(output_dir)
+        mkdir(output_dir)
+    end
+    crop_tiff(namei,pmt_path,meta_path, output_dir)
+end
