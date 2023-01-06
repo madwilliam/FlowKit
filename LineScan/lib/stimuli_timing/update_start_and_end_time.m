@@ -5,14 +5,14 @@ function update_start_and_end_time( pmt_files,meta_files, output_dir )
     parfor filei = 1:nfiles
         try
             file_name = shared_experiment(filei);
-            crop_tiff(file_name,pmt_files,meta_files, output_dir)
+            update_time(file_name,pmt_files,meta_files, output_dir)
         catch ME
             log_error(file_name,ME,output_dir)
         end
     end
 end
 
-function crop_tiff(file_name,pmt_files,meta_files, output_dir)
+function update_time(file_name,pmt_files,meta_files, output_dir)
     disp(append('cropping tiffs for ',file_name))
     pmt_path = FileHandler.get_file_path(pmt_files,file_name);
     meta_path = FileHandler.get_file_path(meta_files,file_name);

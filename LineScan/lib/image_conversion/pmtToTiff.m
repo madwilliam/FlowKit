@@ -2,16 +2,30 @@ function pmtToTiff( pmt_files,meta_files, output_dir )
     pmt_files = filter_small_files(pmt_files);
     [shared_experiment,~,~] = FileHandler.get_shared_experiments(pmt_files,meta_files);
     nfiles = numel(shared_experiment);
-    parfor filei = 1:nfiles
+    for filei = 1:nfiles
         try
             file_name = shared_experiment(filei);
             pmt_path = FileHandler.get_file_path(pmt_files,file_name);
             meta_path = FileHandler.get_file_path(meta_files,file_name);
-            crop_tiff(file_name,pmt_path,meta_path, output_dir)
+
+            animal_name = get_animal_name(pmt_path,'/CBF/');
+            output = fullfile(output_dir,animal_name);
+            if ~exist(output)
+                mkdir(output)
+            end
+
+            crop_tiff(file_name,pmt_path,meta_path, output)
         catch ME
             log_error(file_name,ME,output_dir)
         end
     end
+end
+
+function animal_name = get_animal_name(folder,divider)
+    result = split(folder,divider);
+    result = result{2};
+    result = split(result,filesep);
+    animal_name = result{1};
 end
 
 function crop_tiff(file_name,pmt_path,meta_path, output_dir)
@@ -44,7 +58,7 @@ function crop_tiff(file_name,pmt_path,meta_path, output_dir)
                 tif_name = append(save_name,'.tif');
                 mat_name = append(save_name,'.mat');
                 image = im2uint16(image);
-                imwrite(image,fullfile(output_dir,tif_name));
+                imwrite(image,fullfile(output_zdir,tif_name));
                 save(fullfile(output_dir,mat_name),'SI','RoiGroups','has_stimulus'...
                     ,'dx_um','dt_ms','downsample_factor','channels','start_time','end_time')
             end

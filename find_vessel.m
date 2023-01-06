@@ -26,24 +26,50 @@ vessel_mask_path_index = find(vessel_mask_path);
 [x,y] = ind2sub(size(vessel_mask),vessel_mask_path_index);
 hold on
 imagesc(vessel_mask)
-scatter(y,x,500,1:numel(x),'.')
+sc
+figure
+atter(y,x,500,1:numel(x),'.')
+%%
+T = adaptthresh(framei, 0.4);
+BW = imbinarize(framei,T);
+imagesc(BW)
+imagesc()
+%%
+options.x_blk_size=10;
+options.y_blk_size=10;
+options.displayResults = 1;
+[output] = optical_flow(double(squeeze(all_frame(:,:,1,:))),options);
+%%
+all_difference = [];
+for framei = 1:nframes
+    frame = double(all_frame(:,:,:,framei));
+    frame = frame./max(frame);
+    difference = imgaussfilt(framei,2);
+    difference(find(~vessel_mask))=0;
+    all_difference = [all_difference difference];
+end
+%%
+frame1 = double(all_frame(:,:,1,103));
+frame2 = double(all_frame(:,:,1,104));
+% framei = imgaussfilt(framei,2);
+imagesc(imgaussfilt(frame1,2))
+imagesc(imgaussfilt(frame2,2))
+imagesc(imgaussfilt(frame1,2)-imgaussfilt(frame2,2))
 %%
 img = imagesc(framei);
 for i =1:1000
     framei = double(all_frame(:,:,1,i));
-    framei = framei-average_frame(:,:,1);
-    framei(find(~vessel_mask))=0;
+    title(i)
+%     framei = framei-average_frame(:,:,1)*255;
+%     framei(find(~vessel_mask))=0;
+%     framei = imgaussfilt(framei,2);
     img.CData = framei;
-    pause(1/24)
+    pause(1/2)
 end
 %%
 vessel_mask = bwmorph(vessel_mask,'majority');
 vessel_mask = bwmorph(vessel_mask,'majority');
 vessel_mask = bwmorph(vessel_mask,'majority');
-%%
-
-B = bwskel(vessel_mask);
-imagesc(B)
 
 %%
 xy = [x(:), y(:)]; 
@@ -81,10 +107,6 @@ scatter(y(idx),x(idx),500,(1:numel(idx))/5,'.')
 %%
 x = x(idx);
 y = y(idx);
-npoints = numel(x);
-for pointi = 1:npoints
-    ...
-end
 %%
 
 nframes = size(all_frame,4);
@@ -92,7 +114,8 @@ scan_result = [];
 for framei = 1:nframes
     frame = double(all_frame(:,:,:,framei));
     frame = frame./max(frame);
-    difference = frame-average_frame;
+%     difference = frame-average_frame;
+    difference = frame;
     difference = difference(:,:,1);
     difference(find(~vessel_mask))=0;
     values = [];
@@ -108,7 +131,11 @@ for framei = 1:nframes
     scan_result = [scan_result values'];
 end
 %%
-imagesc(scan_result)
+scan_result
+%%
+scan_result(isnan(scan_result)) = 0;
+%%
+imagesc(scan_result(:,1:500)-mean(scan_result')')
 %%
 all_difference = [];
 for framei = 1:nframes
