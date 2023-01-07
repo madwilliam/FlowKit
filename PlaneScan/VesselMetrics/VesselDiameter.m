@@ -59,7 +59,7 @@ classdef VesselDiameter
                 while (movingX <= max([x(i),x(i+1)])) && ((movingX >= min([x(i), x(i+1)]))) 
                     movingY = slope * movingX + yInt;
                     invYInt = movingY + (-1 * perpendicularSlope * movingX);
-                    intersection = VesselDiameter.getIntersection(movingX, movingY, cross_line_length, perpendicularSlope, invYInt);
+                    intersection = VesselDiameter.getIntersection(movingX, movingY, cross_line_length/2, perpendicularSlope, invYInt);
                     cross_lines = [cross_lines {[perpendicularSlope,invYInt,intersection]}];
                     lastX = movingX;
                     lastY = movingY;
@@ -105,11 +105,10 @@ classdef VesselDiameter
             for i = 1:numel(profiles)
                 profile = profiles{i}-min(profiles{i});
         % 		// Obtain the FWHM value for this profile
-                halfMax = max(profile) / 2;
-                intersects = VesselDiameter.getYIntersects(halfMax, profile);
         % 		// Determine the derivative of this profile and use it to expand the bounds of FWHM height
                 derivative = diff(profile);
                 intersects = VesselDiameter.getYIntersects(0, derivative);
+                intersects = round(intersects);
                 leftIntChange = 1;
                 rightIntChange = numel(profile) - 1;
                 for x = 1:numel(intersects)
