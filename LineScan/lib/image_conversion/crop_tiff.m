@@ -14,6 +14,9 @@ function crop_tiff(file_name,pmt_path,meta_path, output_dir)
         scan_end = floor((line_scan_start(linei)+line.duration)*sampleRate)-1;
         offset = floor(line.duration*sampleRate*0.05);
         [dx_um,dt_ms] = get_dxdt(SI,line);
+        if (scan_start+offset)>size(pmt,1) || (scan_end-offset)>size(pmt,1)
+            continue
+        end
         image =  pmt(scan_start+offset:scan_end-offset,:);
         if isnan(image)
             break
@@ -32,9 +35,24 @@ function crop_tiff(file_name,pmt_path,meta_path, output_dir)
                 imwrite(image,fullfile(output_dir,tif_name));
                 save(fullfile(output_dir,mat_name),'SI','RoiGroups','has_stimulus'...
                     ,'dx_um','dt_ms','downsample_factor','channels','start_time','end_time')
+            else
+                logpath = split(output_dir,'/Analysis/');
+                logpath = logpath{1};
+                log_file_with_no_stimulus(file_name,logpath)
             end
         end
     end
+end
+
+function log_file_with_no_stimulus(file_name,output_dir)
+    log_file = fullfile(output_dir,'no_stimulus.txt');
+    if ~isfile(log_file)
+        fid = fopen(log_file, 'w');
+    else
+        fid = fopen(log_file, 'a+');
+    end
+    fprintf(fid, '======================================\n%s\n%s\n%s\n', file_name);
+    fclose(fid)
 end
 
 function pmt_files = filter_small_files(pmt_files)

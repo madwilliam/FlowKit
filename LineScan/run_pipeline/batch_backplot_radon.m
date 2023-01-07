@@ -1,3 +1,4 @@
-out_dir='/net/dk-server/bholloway/Zhongkai/Pack-100322 Tifs and Mats new radon';
-figure_dir = '/net/dk-server/bholloway/Zhongkai/Pack-100322 Tifs and Mats backplot new radon';
-batch_examine_result(out_dir,figure_dir)
+tif_dir='/net/dk-server/bholloway/Data and Analysis/Analysis/Two Photon Analysis/TIFs_and_MATs';
+mat_dir='/net/dk-server/bholloway/Data and Analysis/Analysis/Two Photon Analysis/Analysis/two_step_radon';
+figure_dir = '/net/dk-server/bholloway/Data and Analysis/Analysis/Two Photon Analysis/Analysis/two_step_backplot';
+batch_examine_result(tif_dir,mat_dir,figure_dir)

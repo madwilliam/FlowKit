@@ -62,7 +62,7 @@ classdef RadonBackPlotter
             xlim(ax2,[min(time),max(time)])
             ylim(ax2,[-5,5])
        end
-       function save_flow_speed_around_stimulation(mat_path,tif_path,save_path)
+       function save_flow_speed_around_stimulation(radon_mat_path,mat_path,tif_path,save_path)
            function save_figure(stimulationi)
                rez = [5100 3900]; %set desired [horizontal vertical] resolution
                set(gcf,'PaperPosition',[0 0 rez/100],'PaperUnits','inches'); %set paper size (does not affect display)
@@ -70,10 +70,10 @@ classdef RadonBackPlotter
                imwrite(img, append(save_path,'_stimulation',num2str(stimulationi),'.png'));
                close(gcf)
            end
-           RadonBackPlotter.show_flow_speed_around_stimulation(mat_path,tif_path,@save_figure)
+           RadonBackPlotter.show_flow_speed_around_stimulation(radon_mat_path,mat_path,tif_path,@save_figure)
        end
 
-       function save_flow_speed_around_stimulation_weka(mat_path,tif_path,weka_mat_path,save_path)
+       function save_flow_speed_around_stimulation_weka(radon_mat_path,mat_path,tif_path,weka_mat_path,save_path)
            function save_figure(stimulationi)
                rez = [5100 3900]; %set desired [horizontal vertical] resolution
                set(gcf,'PaperPosition',[0 0 rez/100],'PaperUnits','inches'); %set paper size (does not affect display)
@@ -81,17 +81,18 @@ classdef RadonBackPlotter
                imwrite(img, append(save_path,'_stimulation',num2str(stimulationi),'.png'));
                close(gcf)
            end
-           RadonBackPlotter.show_flow_speed_around_stimulation_weka(mat_path,tif_path,weka_mat_path,@save_figure)
+           RadonBackPlotter.show_flow_speed_around_stimulation_weka(radon_mat_path,mat_path,tif_path,weka_mat_path,@save_figure)
        end
         
-       function show_flow_speed_around_stimulation(mat_path,tif_path,save_function)
+       function show_flow_speed_around_stimulation(radon_mat_path,mat_path,tif_path,save_function)
            if ~exist('save_function','var')
                 save_function = nan;
                 show_plot = true;
            else
                show_plot = false;
            end
-           load(mat_path,'result','start_time','end_time');
+           load(radon_mat_path,'result');
+           load(mat_path,'start_time','end_time');
            image = FileHandler.load_image_data(tif_path);
            RadonBackPlotter.plot_stipes_for_all_stimulation(image,start_time,end_time,result,show_plot,save_function,@RadonBackPlotter.get_plotting_information)
        end

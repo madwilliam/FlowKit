@@ -38,6 +38,60 @@ classdef FileHandler
            config_file = dir(strcat(path,'/**/*.PATH.mat'));
        end
 
+       function names = get_pmt_or_mat_names(files)
+           names = {files.name};
+           names = cellfun(@FileHandler.strip_extensions,names,'UniformOutput',false);
+           names = cellfun(@(x) x(1:end-5),names,'UniformOutput',false);
+       end
+
+       function names = get_meta_tif_or_pmt_names(files)
+            names = {files.name};
+            names = cellfun(@FileHandler.strip_extensions,names,'UniformOutput',false);
+       end
+
+       function path_files  = get_path_files(folder)
+           path_files = dir(fullfile(folder,'**','*PATH.mat'));
+       end
+
+       function [file_function,name_function] = file_type_to_functions(type)
+            if strcmp(type,'mat')
+                file_function = @FileHandler.get_mat_files;
+                name_function = @FileHandler.get_pmt_or_mat_names;
+            elseif strcmp(type,'tif')
+                file_function = @FileHandler.get_tif_files;
+                name_function = @FileHandler.get_meta_tif_or_pmt_names;
+            elseif strcmp(type,'pmt')
+                 file_function = @FileHandler.get_pmt_files;
+                 name_function = @FileHandler.get_meta_tif_or_pmt_names;
+            elseif strcmp(type,'meta')
+                 file_function = @FileHandler.get_meta_files;
+                 name_function = @FileHandler.get_meta_tif_or_pmt_names;
+            elseif strcmp(type,'path')
+                 file_function = @FileHandler.get_path_files;
+                 name_function = @FileHandler.get_pmt_or_mat_names;
+            end
+       end
+
+       function [common_names,all_files]=find_common_names(types,folder)
+           ntypes = numel(types);
+           all_files = cell(ntypes,1);
+           for i = 1:ntypes
+               [file_function,name_function] = FileHandler.file_type_to_functions(types{i});
+               files = file_function(folder);
+               all_files{i} = files;
+               names = name_function(files);
+               if i ==i
+                   common_names = names;
+               else
+                   common_names = intersect( common_names,names);
+               end
+           end
+       end
+       
+       function path = file_to_path(file)
+           path = fullfile(file.folder,file.name);
+       end
+
        function tif_file = get_tif_files(path)
            tif_file = dir(strcat(path,'/**/*.tif'));
        end
@@ -63,7 +117,7 @@ classdef FileHandler
            found = false;
            for i =1:numel(files)
                name = FileHandler.strip_extensions(files(i).name);
-               if strcmp(name,file_name)
+               if contains(name,file_name)
                    file = files(i);
                    if found
                        disp(append('more than one file found for ',file_name))
