@@ -103,25 +103,27 @@ classdef VesselDiameter
         function fwhms = getFWHMFromProfiles(profiles, pixelScale)
             fwhms = [];
             for i = 1:numel(profiles)
-                profile = profiles{i}-min(profiles{i});
-        % 		// Obtain the FWHM value for this profile
-        % 		// Determine the derivative of this profile and use it to expand the bounds of FWHM height
+                profile = profiles{i};
+            %     // Determine the derivative of this profile and use it to expand the bounds of FWHM height
+            %     // Obtain the FWHM value for this profile
+                halfMax = (max(profile)-min(profile))/2+min(profile);
+                fwhm_intersects = VesselDiameter.getYIntersects(halfMax, profile);
+            %     // Determine the derivative of this profile and use it to expand the bounds of FWHM height
                 derivative = diff(profile);
                 intersects = VesselDiameter.getYIntersects(0, derivative);
                 intersects = round(intersects);
-                leftIntChange = 1;
-                rightIntChange = numel(profile) - 1;
+                leftIntChange = 0;
+                rightIntChange = numel(profile);
                 for x = 1:numel(intersects)
-                    if (intersects(x) > leftIntChange && min(profile) - intersects(x) > 0) 
+                    if (intersects(x) > leftIntChange) && (min(fwhm_intersects) > intersects(x)) 
                         leftIntChange = intersects(x);
                     end
-                    if (intersects(x) < rightIntChange && intersects(x) - max(profile) > 0) 
+                    if (intersects(x) < rightIntChange) && (intersects(x) > max(fwhm_intersects)) 
                         rightIntChange = intersects(x);
                     end
                 end
-        % 		// Using the adjusted intersects, recalculate the half max and find the x distance
-                halfMax = (max(profile) - min([profile(leftIntChange), profile(rightIntChange)])) / 2;
-        % 		//halfMax = max / 2;
+            %     // Using the adjusted intersects, recalculate the half max and find the x distance
+                vesselCenter = (rightIntChange + leftIntChange) / 2;
                 fwhm = VesselDiameter.fwhmFromProfile(profile, halfMax, ((rightIntChange + leftIntChange) / 2), false) * pixelScale;		
                 fwhms =[fwhms fwhm];
             end
@@ -138,7 +140,7 @@ classdef VesselDiameter
                 return
             end
             leftX = intersects(1);
-            rightX = intersects(numel(intersects) - 1);
+            rightX = intersects(end);
             for x = 1: numel(intersects)
                 if minDist && intersects(x) < vesselCenterX && vesselCenterX - intersects(x) < vesselCenterX - leftX
                     leftX = intersects(x);
